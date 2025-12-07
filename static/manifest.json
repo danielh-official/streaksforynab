@@ -1,0 +1,22 @@
+{
+  "short_name": "Streaks (For YNAB)",
+  "name": "Streaks (For YNAB)",
+  "start_url": "/streaks-for-ynab-web-app",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#000000",
+  "description": "A web app to track your spending habits with YNAB.",
+  "icons": [
+    {
+      "src": "/icons/startup.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/startup.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
