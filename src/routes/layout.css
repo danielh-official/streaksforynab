@@ -1,3 +1,9 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@media (prefers-color-scheme: dark) {
+	input[type='date']::-webkit-calendar-picker-indicator {
+		filter: invert(1) brightness(0.5);
+	}
+}
