@@ -22,8 +22,8 @@
 			class="text-blue-500 hover:underline"
 			target="_blank"
 			rel="noopener noreferrer"
-			href="https://www.flaticon.com/free-icons/booster"
-			title="booster icons">Booster icons created by Freepik - Flaticon</a
+			href="https://www.flaticon.com/free-icons/coin"
+			title="coin icons">Coin icons created by Ardiansyah - Flaticon</a
 		>
 	</p>
 </footer>
