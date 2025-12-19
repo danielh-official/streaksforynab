@@ -90,6 +90,16 @@
 			alert('Transactions fetched and stored locally!');
 
 			fetchingTransactions = false;
+
+			$habits.forEach((habit) => {
+				setTransactionsAndDayStatusesForHabit({
+					habit_id: habit.id,
+					goal_type: habit.goal_type,
+					goal: habit.goal,
+					start_date: habit.start_date,
+					query: habit.query
+				});
+			});
 		} catch (error) {
 			console.error('Error fetching transactions:', error);
 			fetchingTransactions = false;
@@ -201,8 +211,7 @@
 </script>
 
 <svelte:head>
-	<title>Streaks (For YNAB)</title>
-	<meta name="description" content="A web app to track your spending habits with YNAB." />
+	<title>Budget | Streaks (For YNAB)</title>
 </svelte:head>
 
 <div class="flex justify-center items-center h-screen">
