@@ -51,6 +51,7 @@
 	"dependencies": {
 		"chrono-node": "^2.9.0",
 		"dexie": "^4.2.1",
-		"xml-js": "^1.6.11"
+		"xml-js": "^1.6.11",
+		"ynab": "^2.10.0"
 	}
 }
