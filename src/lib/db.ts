@@ -1,24 +1,30 @@
-import { Dexie, type EntityTable } from 'dexie';
+import { Dexie, type EntityTable } from "dexie"
+import type { BudgetDetail, TransactionDetail } from "ynab"
 
-interface Habit {
-	id?: number;
-	name: string;
-	goal: string;
-	goal_type: 'above' | 'below';
-	amount: number;
-	start_date: Date;
+interface MetaBudget {
+    id: string
+    server_knowledge: number
+    last_fetched: Date
 }
 
-const db = new Dexie('StreaksForYnabDB') as Dexie & {
-	postings: EntityTable<
-		Habit,
-		'id' // primary key "id" (for the typings only)
-	>;
-};
+const db = new Dexie("StreaksForYnabDB") as Dexie & {
+    budgets: EntityTable<BudgetDetail,
+    "id" // primary key "id" (for the typings only)
+  >,
+    transactions: EntityTable<TransactionDetail,
+    "id" // primary key "id" (for the typings only)
+  >
+    meta_budgets: EntityTable<MetaBudget,
+    "id" // primary key "id" (for the typings only)
+  >
+}
 
+// Schema declaration:
 db.version(1).stores({
-	habits: ['++id', 'name', 'goal', 'goal_type', 'amount', 'start_date'].join(', ') // Primary key and indexed props
-});
+    budgets: "id",
+    transactions: "id",
+    meta_budgets: "id"
+})
 
-export type { Habit };
-export { db };
+export type { MetaBudget }
+export { db }
