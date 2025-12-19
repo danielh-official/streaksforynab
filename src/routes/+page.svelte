@@ -79,7 +79,6 @@
 
 <svelte:head>
 	<title>Streaks (For YNAB)</title>
-	<meta name="description" content="A web app to track your spending habits with YNAB." />
 </svelte:head>
 
 <div class="flex justify-center items-center h-screen">
