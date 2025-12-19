@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	onMount(async () => {
+	onMount(() => {
 		// Get hash access token from URL
 
 		const hash = window.location.hash.substring(1);
@@ -17,8 +17,3 @@
 		}
 	});
 </script>
-
-<svelte:head>
-	<title>Streaks (For YNAB)</title>
-	<meta name="description" content="A web app to track your spending habits with YNAB." />
-</svelte:head>
