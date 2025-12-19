@@ -11,9 +11,9 @@
 		if (accessToken) {
 			// Store the access token securely (e.g., in localStorage or a Svelte store)
 			sessionStorage.setItem('ynab_access_token', accessToken);
-
-			// Redirect to the main page or dashboard
-			window.location.href = '/';
 		}
+
+		// Redirect to the main application page
+		window.location.href = '/';
 	});
 </script>
