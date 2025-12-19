@@ -1,0 +1,13 @@
+<script lang="ts">
+  import { page } from '$app/state';
+</script>
+
+<svelte:head>
+	<title>Error | Streaks (For YNAB)</title>
+</svelte:head>
+
+<div class="min-h-screen flex flex-col justify-center items-center gap-y-6">
+  <h1 class="text-xl mb-2">{page.status}</h1>
+  <p class="text-gray-400 text-lg">{page?.error?.message ?? 'An unexpected error occurred.'}</p>
+  <a class="mt-5 text-blue-500 hover:underline" href="/">Go back to the homepage</a>
+</div>
