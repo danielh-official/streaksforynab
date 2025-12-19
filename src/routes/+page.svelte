@@ -8,8 +8,6 @@
 
 	let loading = $state(false);
 
-	// MARK: - onMount
-
 	onMount(async () => {
 		loading = true;
 
@@ -65,7 +63,14 @@
 			alert('Budgets fetched and stored locally!');
 		} catch (error) {
 			console.error('Error fetching budgets from YNAB:', error);
-			alert('Failed to fetch budgets from YNAB. Please try again.');
+
+			if ((error as ynab.ErrorResponse).error.id === '401') {
+				alert('Your YNAB access token is invalid or has expired. Please log in again.');
+				sessionStorage.removeItem('ynab_access_token');
+				window.location.reload();
+			} else {
+				alert('Failed to fetch budgets from YNAB. Please try again.');
+			}
 		}
 	}
 
@@ -115,7 +120,7 @@
 			</table>
 		</div>
 	{:else}
-		<div class="text-center">
+		<div class="text-center flex flex-col gap-y-6">
 			<h1 class="text-2xl font-bold mb-4">Welcome to Streaks (For YNAB)</h1>
 			<p class="mb-4">Please log in with your YNAB account to continue.</p>
 			<a href={$authUrl} class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
