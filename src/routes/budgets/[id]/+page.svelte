@@ -238,7 +238,7 @@
 		></div>
 	{:else if $authToken}
 		<div class="text-center flex flex-col gap-y-8">
-			<div class="flex gap-x-4 justify-center">
+			<div class="flex md:flex-row flex-col gap-y-4 gap-x-4 justify-center p-5">
 				<a href="/" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
 					Back to Budgets
 				</a>
