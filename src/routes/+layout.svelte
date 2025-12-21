@@ -1,15 +1,20 @@
 <script lang="ts">
+	import WorksWithYnab from '$lib/components/WorksWithYnab.svelte';
 	import './layout.css';
 
 	let { children } = $props();
 </script>
 
-<div class="dark:text-white dark:bg-gray-800 p-4 rounded shadow">
+<div class="dark:text-white">
+	<div class="flex flex-col items-end p-5">
+		<WorksWithYnab />
+	</div>
+
 	{@render children()}
 </div>
 
-<footer class="text-center text-sm text-gray-500 my-8">
-	<p>
+<footer class="text-center text-sm text-gray-500">
+	<p class="mt-8 md:px-40 px-5 pt-5 border-t border-gray-300">
 		&copy; {new Date().getFullYear()} Streaks (For YNAB). Built with
 		<a
 			href="https://svelte.dev"
@@ -25,6 +30,12 @@
 			href="https://www.flaticon.com/free-icons/coin"
 			title="coin icons">Coin icons created by Ardiansyah - Flaticon</a
 		>
+	</p>
+	<p class="mt-4 md:px-40 px-5 pb-5">
+		<b>Statement of Affiliation</b>: We are not affiliated, associated, or in any way officially
+		connected with YNAB or any of its subsidiaries or affiliates. The official YNAB website can be
+		found at https://www.ynab.com. The names YNAB and You Need A Budget, as well as related names,
+		tradenames, marks, trademarks, emblems, and images are registered trademarks of YNAB.
 	</p>
 </footer>
 
