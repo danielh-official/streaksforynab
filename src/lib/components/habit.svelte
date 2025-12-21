@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { db, type Habit, type HabitDayRecord } from '$lib/db';
+	import { db, type Habit, type HabitDayRecord, type HabitQuery } from '$lib/db';
 	import { setTransactionsAndDayStatusesForHabit } from '$lib';
-	import { onMount } from 'svelte';
+	import QueryBuilder from './habit/QueryBuilder.svelte';
 
 	let { habit } = $props<{
 		habit: Habit;
@@ -26,7 +26,7 @@
 		goal_type: 'above' | 'below';
 		goal: number;
 		start_date: string;
-		query: string;
+		query: HabitQuery | null;
 	}
 
 	function confirmDelete(habitId: number) {
@@ -62,7 +62,7 @@
 		goal_type: 'below',
 		goal: 10,
 		start_date: new Date().toISOString().split('T')[0],
-		query: ''
+		query: null
 	});
 
 	function setShowHabitEditModalToTrue(habit: Habit) {
@@ -72,7 +72,7 @@
 				goal_type: habit.goal_type,
 				goal: habit.goal,
 				start_date: habit.start_date.toISOString().split('T')[0],
-				query: habit.query || ''
+				query: habit.query || null
 			};
 			showHabitEditModal = true;
 		};
@@ -196,11 +196,8 @@
 	<h2 class="text-lg font-bold mb-2">{habit.name}</h2>
 	<p>Goal: {habit.goal_type} {habit.goal}</p>
 	<p>Start Date: {new Date(habit.start_date).toLocaleDateString()}</p>
-	{#if habit.query}
-		<p>Query: {habit.query}</p>
-	{/if}
 	<p>Current Streak: {streak} days</p>
-	<div class="mt-4 flex gap-x-2 justify-end text-sm">
+	<div class="mt-4 flex md:flex-row flex-col gap-y-2 gap-x-2 justify-end text-sm">
 		<button
 			class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded cursor-pointer"
 			onclick={() => (showViewHabitModal = true)}>Details</button
@@ -215,7 +212,7 @@
 				<h2 class="text-xl font-bold mb-4">Habit Details</h2>
 
 				<button
-					class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700 cursor-pointer mb-4"
+					class="bg-gray-300 dark:bg-gray-700 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600 cursor-pointer mb-4"
 					onclick={() => (showViewHabitModal = false)}
 				>
 					Close
@@ -230,7 +227,7 @@
 				<div class="flex justify-between items-center">
 					<h3 class="text-lg font-semibold mb-2">
 						<button
-							class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							class="bg-gray-300 dark:bg-gray-700 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 							disabled={selectedYear === habit.start_date.getFullYear() &&
 								selectedMonth === habit.start_date.getMonth()}
 							onclick={() => {
@@ -240,7 +237,7 @@
 								} else {
 									selectedMonth -= 1;
 								}
-							}}>Back</button
+							}}>&lAarr;</button
 						>
 					</h3>
 					<h3 class="text-lg font-semibold mb-2">
@@ -248,7 +245,7 @@
 					</h3>
 					<h3 class="text-lg font-semibold mb-2">
 						<button
-							class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							class="bg-gray-300 dark:bg-gray-700 px-4 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 							disabled={selectedYear === new Date().getFullYear() &&
 								selectedMonth === new Date().getMonth()}
 							onclick={() => {
@@ -258,7 +255,7 @@
 								} else {
 									selectedMonth += 1;
 								}
-							}}>Next</button
+							}}>&rAarr;</button
 						>
 					</h3>
 				</div>
@@ -266,7 +263,7 @@
 				<div class="grid grid-cols-7 gap-4">
 					{#each currentRangeOfDates as date}
 						<div
-							class={`w-10 h-10 flex items-center justify-center border rounded-3xl ${getStyleForDate(date)}`}
+							class={`md:w-10 md:h-10 w-7 h-7 flex items-center justify-center border rounded-3xl ${getStyleForDate(date)}`}
 						>
 							{date.getDate()}
 						</div>
@@ -279,10 +276,8 @@
 			>
 				<p>Goal: {habit.goal_type} {habit.goal}</p>
 				<p>Start Date: {new Date(habit.start_date).toLocaleDateString()}</p>
-				{#if habit.query}
-					<p>Query: {habit.query}</p>
-				{/if}
 				<p>Current Streak: {streak} days</p>
+				<p>Transactions: {habit.transactions.length}</p>
 			</div>
 		</dialog>
 
@@ -294,7 +289,7 @@
 		<dialog
 			bind:this={editHabitDialog}
 			onclose={setShowHabitEditModalToFalse()}
-			class="rounded-lg p-6 border border-gray-300 shadow-lg w-3/4 h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
+			class="rounded-lg p-6 border border-gray-300 shadow-lg w-full h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
 		>
 			<h2 class="text-xl font-bold mb-4">Update Existing Habit</h2>
 			<form
@@ -354,20 +349,14 @@
 					/>
 				</div>
 
-				<div class="flex flex-col">
-					<label for="query">YNAB Query (optional)</label>
-					<textarea
-						id="query"
-						name="query"
-						class="border border-gray-300 rounded px-2 py-1 mt-1 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-						bind:value={editHabitFormData.query}
-					></textarea>
-				</div>
+				<div class="flex flex-col">Query (Optional)</div>
+
+				<QueryBuilder bind:value={editHabitFormData.query} />
 
 				<div class="flex justify-end gap-x-4">
 					<button
 						type="button"
-						class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 cursor-pointer"
+						class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 cursor-pointer dark:bg-gray-700 dark:hover:bg-gray-600"
 						onclick={setShowHabitEditModalToFalse()}
 					>
 						Cancel

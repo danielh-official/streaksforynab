@@ -1,6 +1,18 @@
 import { Dexie, type EntityTable } from 'dexie';
 import type { BudgetDetail, TransactionDetail } from 'ynab';
 
+export interface HabitQuery {
+	operator: 'and' | 'or';
+	subgroups: {
+		operator: 'and' | 'or';
+		conditions: {
+			field: 'category_name' | 'account_name' | 'payee_name' | 'memo';
+			value: string;
+			operator: 'contains' | 'does_not_contain' | 'is' | 'is_not';
+		}[]
+	}[];
+}
+
 interface MetaBudget {
 	id: string;
 	transactions_server_knowledge: number;
@@ -12,7 +24,7 @@ interface Habit {
 	name: string;
 	goal: number;
 	goal_type: 'above' | 'below';
-	query: string | null;
+	query: HabitQuery | null;
 	start_date: Date;
 	created_at: Date;
 	updated_at: Date;

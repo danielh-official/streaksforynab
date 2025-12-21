@@ -3,11 +3,12 @@
 	import { browser } from '$app/environment';
 	import { derived } from 'svelte/store';
 	import * as ynab from 'ynab';
-	import { db } from '$lib/db';
+	import { db, type HabitQuery } from '$lib/db';
 	import { page } from '$app/state';
 	import { liveQuery } from 'dexie';
 	import HabitComponent from '$lib/components/habit.svelte';
 	import { setTransactionsAndDayStatusesForHabit } from '$lib';
+	import QueryBuilder from '$lib/components/habit/QueryBuilder.svelte';
 
 	let loading = $state(false);
 
@@ -126,7 +127,7 @@
 		goal_type: 'above' | 'below';
 		goal: number;
 		start_date: string;
-		query: string;
+		query: HabitQuery | null;
 	}
 
 	let createHabitFormData: HabitFormData = $state({
@@ -134,7 +135,7 @@
 		goal_type: 'below',
 		goal: 10,
 		start_date: new Date().toISOString().split('T')[0],
-		query: ''
+		query: null
 	});
 
 	async function createNewHabit(event: Event) {
@@ -143,13 +144,29 @@
 		const budgetId = page.params.id;
 
 		try {
+			function normalizeHabitQuery(query: HabitQuery | null): HabitQuery | null {
+				if (!query) return null;
+
+				return {
+					operator: query.operator,
+					subgroups: query.subgroups.map((sg) => ({
+						operator: sg.operator,
+						conditions: sg.conditions.map((c) => ({
+							field: c.field,
+							value: c.value,
+							operator: c.operator
+						}))
+					}))
+				};
+			}
+
 			const newHabit = {
 				budget_id: budgetId,
 				name: createHabitFormData.name,
 				goal_type: createHabitFormData.goal_type,
 				goal: Number(createHabitFormData.goal),
 				start_date: new Date(createHabitFormData.start_date + 'T00:00:00'),
-				query: createHabitFormData.query || null,
+				query: normalizeHabitQuery(createHabitFormData.query),
 				created_at: new Date(),
 				updated_at: new Date(),
 				skipped_dates: [],
@@ -179,7 +196,7 @@
 			goal_type: 'above',
 			goal: 10,
 			start_date: new Date().toISOString().split('T')[0],
-			query: ''
+			query: null
 		};
 
 		showHabitCreationModal = false;
@@ -241,7 +258,7 @@
 				<dialog
 					bind:this={createHabitDialog}
 					onclose={() => (showHabitCreationModal = false)}
-					class="rounded-lg p-6 border border-gray-300 shadow-lg w-3/4 h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
+					class="rounded-lg p-6 border border-gray-300 shadow-lg w-full h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
 				>
 					<h2 class="text-xl font-bold mb-4">Create New Habit</h2>
 					<form method="dialog" class="flex flex-col gap-y-4" onsubmit={createNewHabit}>
@@ -297,20 +314,14 @@
 							/>
 						</div>
 
-						<div class="flex flex-col">
-							<label for="query">YNAB Query (optional)</label>
-							<textarea
-								id="query"
-								name="query"
-								class="border border-gray-300 rounded px-2 py-1 mt-1 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-								bind:value={createHabitFormData.query}
-							></textarea>
-						</div>
+						<div class="flex flex-col">Query (Optional)</div>
+
+						<QueryBuilder bind:value={createHabitFormData.query} />
 
 						<div class="flex justify-end gap-x-4">
 							<button
 								type="button"
-								class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 cursor-pointer"
+								class="bg-gray-300 dark:bg-gray-700 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600 cursor-pointer"
 								onclick={() => (showHabitCreationModal = false)}
 							>
 								Cancel
