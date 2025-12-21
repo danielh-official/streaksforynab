@@ -36,14 +36,14 @@ const config = {
 		paths: {
 			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
 		},
-		// csp: {
-		// 	directives: {
-		// 		'img-src': ["'self'", 'data:', 'https://images.unsplash.com', 'https://cdn.sanity.io']
-		// 	}
-		// },
-		// csrf: {
-		// 	trustedOrigins: [process.env.BASE_PATH || '']
-		// }
+		csp: {
+			directives: {
+				'img-src': ["'self'", 'data:', 'https://images.unsplash.com', 'https://cdn.sanity.io']
+			}
+		},
+		csrf: {
+			trustedOrigins: [process.env.BASE_PATH || '']
+		}
 	}
 };
 
