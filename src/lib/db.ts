@@ -36,6 +36,7 @@ interface Habit {
 interface HabitDayRecord {
 	date: Date;
 	completed: boolean;
+	amount: number;
 }
 
 const db = new Dexie('StreaksForYnabDB') as Dexie & {

@@ -61,7 +61,8 @@ export async function setTransactionsAndDayStatusesForHabit(params: {
 
 			calculatedDayRecords.push({
 				date: currentDate,
-				completed
+				completed,
+				amount: Number(totalAmountForTheDay.toFixed(2))
 			});
 		}
 

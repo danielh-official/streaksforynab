@@ -187,6 +187,21 @@
 		}
 		return '';
 	}
+
+	const todayAmount = $derived.by(() => {
+		const todayDate = new Date();
+		const todayRecord = habit.day_records.find(
+			(record: HabitDayRecord) => new Date(record.date).toDateString() === todayDate.toDateString()
+		);
+		if (todayRecord) {
+			return todayRecord.amount;
+		}
+		return 0;
+	});
+
+	const todayProgress = $derived.by(() => {
+		return todayAmount / habit.goal;
+	});
 </script>
 
 <div
@@ -197,6 +212,41 @@
 	<p>Goal: {habit.goal_type} {habit.goal}</p>
 	<p>Start Date: {new Date(habit.start_date).toLocaleDateString()}</p>
 	<p>Current Streak: {streak} days</p>
+
+	<!-- A goal ring that displays the progress towards the habit goal and the percentage within it -->
+
+	<div class="mt-4 flex justify-center items-center">
+		<svg width="100" height="100" viewBox="0 0 100 100" class="fill-current">
+			<circle
+				cx="50"
+				cy="50"
+				r="45"
+				stroke="#e5e7eb"
+				stroke-width="10"
+				fill="none"
+			/>
+			<circle
+				cx="50"
+				cy="50"
+				r="45"
+				stroke="#10b981"
+				stroke-width="10"
+				fill="none"
+				stroke-dasharray="282.6"
+				stroke-dashoffset="{282.6 * (1 - Math.min(todayProgress, 1))}"
+				transform="rotate(-90 50 50)"
+			/>
+			<text
+				x="50"
+				y="55"
+				text-anchor="middle"
+				font-size="15"
+			>
+				{Math.min(Math.round(todayProgress * 100), 100)}%
+			</text>
+		</svg>
+	</div>
+
 	<div class="mt-4 flex md:flex-row flex-col gap-y-2 gap-x-2 justify-end text-sm">
 		<button
 			class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded cursor-pointer"
@@ -206,7 +256,7 @@
 		<dialog
 			bind:this={viewHabitDialog}
 			onclose={() => (showViewHabitModal = false)}
-			class="rounded-lg p-6 border border-gray-300 shadow-lg w-3/4 h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
+			class="rounded-lg p-6 border border-gray-300 shadow-lg md:w-3/4 md:h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
 		>
 			<div class="flex justify-between">
 				<h2 class="text-xl font-bold mb-4">Habit Details</h2>
@@ -289,7 +339,7 @@
 		<dialog
 			bind:this={editHabitDialog}
 			onclose={setShowHabitEditModalToFalse()}
-			class="rounded-lg p-6 border border-gray-300 shadow-lg w-full h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
+			class="rounded-lg p-6 border border-gray-300 shadow-lg w-full md:h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
 		>
 			<h2 class="text-xl font-bold mb-4">Update Existing Habit</h2>
 			<form

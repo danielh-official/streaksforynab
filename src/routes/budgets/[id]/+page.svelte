@@ -231,7 +231,7 @@
 	<title>Budget | Streaks (For YNAB)</title>
 </svelte:head>
 
-<div class="flex justify-center items-center h-screen">
+<div class="flex justify-center items-center md:h-screen">
 	{#if loading}
 		<div
 			class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"
@@ -258,7 +258,7 @@
 				<dialog
 					bind:this={createHabitDialog}
 					onclose={() => (showHabitCreationModal = false)}
-					class="rounded-lg p-6 border border-gray-300 shadow-lg w-full h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
+					class="rounded-lg p-6 border border-gray-300 shadow-lg w-full md:h-3/4 xl:w-2/4 mx-auto my-auto dark:bg-gray-800 dark:text-white"
 				>
 					<h2 class="text-xl font-bold mb-4">Create New Habit</h2>
 					<form method="dialog" class="flex flex-col gap-y-4" onsubmit={createNewHabit}>
@@ -357,7 +357,7 @@
 				</div>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4">
+			<div class="grid md:grid-cols-2 gap-4">
 				{#each $habits as habit}
 					<HabitComponent {habit} />
 				{/each}
