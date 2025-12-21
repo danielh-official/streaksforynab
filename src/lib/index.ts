@@ -21,7 +21,9 @@ export async function setTransactionsAndDayStatusesForHabit(params: {
 			throw new Error('Habit not found');
 		}
 
-		const filteredInTransactions = allTransactions.filter((transaction) => filterTransaction(transaction, query, start_date));
+		const filteredInTransactions = allTransactions.filter((transaction) =>
+			filterTransaction(transaction, query, start_date)
+		);
 
 		await db.habits.update(params.habit_id, {
 			transactions: filteredInTransactions
@@ -107,10 +109,7 @@ export function filterTransaction(
 	return true;
 }
 
-function parseQuery(
-	query: HabitQuery,
-	transaction: TransactionDetail
-): boolean {
+function parseQuery(query: HabitQuery, transaction: TransactionDetail): boolean {
 	if (!query.subgroups.length) return true;
 
 	const evalSubgroup = (subgroup: HabitQuery['subgroups'][number]): boolean => {
@@ -135,14 +134,10 @@ function parseQuery(
 			}
 		});
 
-		return subgroup.operator === 'and'
-			? results.every(Boolean)
-			: results.some(Boolean);
+		return subgroup.operator === 'and' ? results.every(Boolean) : results.some(Boolean);
 	};
 
 	const subgroupResults = query.subgroups.map(evalSubgroup);
 
-	return query.operator === 'and'
-		? subgroupResults.every(Boolean)
-		: subgroupResults.some(Boolean);
+	return query.operator === 'and' ? subgroupResults.every(Boolean) : subgroupResults.some(Boolean);
 }

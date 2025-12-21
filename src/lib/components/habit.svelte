@@ -217,14 +217,7 @@
 
 	<div class="mt-4 flex justify-center items-center">
 		<svg width="100" height="100" viewBox="0 0 100 100" class="fill-current">
-			<circle
-				cx="50"
-				cy="50"
-				r="45"
-				stroke="#e5e7eb"
-				stroke-width="10"
-				fill="none"
-			/>
+			<circle cx="50" cy="50" r="45" stroke="#e5e7eb" stroke-width="10" fill="none" />
 			<circle
 				cx="50"
 				cy="50"
@@ -233,15 +226,10 @@
 				stroke-width="10"
 				fill="none"
 				stroke-dasharray="282.6"
-				stroke-dashoffset="{282.6 * (1 - Math.min(todayProgress, 1))}"
+				stroke-dashoffset={282.6 * (1 - Math.min(todayProgress, 1))}
 				transform="rotate(-90 50 50)"
 			/>
-			<text
-				x="50"
-				y="55"
-				text-anchor="middle"
-				font-size="15"
-			>
+			<text x="50" y="55" text-anchor="middle" font-size="15">
 				{Math.min(Math.round(todayProgress * 100), 100)}%
 			</text>
 		</svg>

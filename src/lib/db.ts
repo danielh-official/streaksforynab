@@ -9,7 +9,7 @@ export interface HabitQuery {
 			field: 'category_name' | 'account_name' | 'payee_name' | 'memo';
 			value: string;
 			operator: 'contains' | 'does_not_contain' | 'is' | 'is_not';
-		}[]
+		}[];
 	}[];
 }
 
