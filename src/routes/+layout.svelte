@@ -43,7 +43,7 @@
 	target="_blank"
 	rel="noopener noreferrer"
 	class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition gap-x-2 hidden md:flex"
-	href="https://github.com/danielh-official/streaks-for-ynab-web-app"
+	href="https://github.com/danielh-official/streaksforynab"
 	><svg viewBox="0 0 24 24" aria-hidden="true" class="size-6 fill-slate-100"
 		><path
 			fill-rule="evenodd"

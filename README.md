@@ -4,7 +4,7 @@ A web app for tracking spending habits with YNAB.
 
 Built on [SvelteKit](https://svelte.dev/docs/kit/introduction).
 
-For any bug reports or feature requests, visit the [issues](https://github.com/danielh-official/streaks-for-ynab-web-app/issues) page.
+For any bug reports or feature requests, visit the [issues](https://github.com/danielh-official/streaksforynab/issues) page.
 
 ## Local Development
 
