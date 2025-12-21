@@ -11,8 +11,8 @@ For any bug reports or feature requests, visit the [issues](https://github.com/d
 1. Fork and clone
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/streaks-for-ynab-web-app.git
-cd streaks-for-ynab-web-app
+git clone https://github.com/YOUR-USERNAME/streaksforynab.git
+cd streaksforynab
 ```
 
 2. Install packages: `pnpm install`
