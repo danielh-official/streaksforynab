@@ -23,6 +23,10 @@ function getAdapter() {
 	});
 }
 
+function getBasePath() {
+	return process.env.PUBLIC_BASE_PATH || '';
+}
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://svelte.dev/docs/kit/integrations
@@ -34,7 +38,7 @@ const config = {
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		adapter: getAdapter(),
 		paths: {
-			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
+			base: getBasePath()
 		},
 		csp: {
 			directives: {

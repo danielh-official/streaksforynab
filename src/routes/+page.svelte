@@ -4,6 +4,7 @@
 	import { db } from '$lib/db';
 	import { liveQuery } from 'dexie';
 	import type { BudgetDetail, BudgetSummaryResponse, ErrorResponse } from 'ynab';
+	import { PUBLIC_BASE_PATH } from '$env/static/public';
 	import { page } from '$app/state';
 
 	let loading = $state(true);
@@ -18,7 +19,7 @@
 
 	let currentUrl = $derived.by(() => {
 		if (browser) {
-			return page.url.origin;
+			return page.url.origin + PUBLIC_BASE_PATH;
 		}
 		return '';
 	});
