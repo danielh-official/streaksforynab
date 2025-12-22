@@ -17,6 +17,9 @@ export default defineConfig({
 		})
 	],
 	test: {
+		browser: {
+			headless: true
+		},
 		expect: { requireAssertions: true },
 		projects: [
 			{
