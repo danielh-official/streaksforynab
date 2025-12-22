@@ -2,15 +2,13 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { derived } from 'svelte/store';
-	import * as ynab from 'ynab';
 	import { db } from '$lib/db';
 	import { liveQuery } from 'dexie';
+	import type { BudgetDetail, BudgetSummaryResponse, ErrorResponse } from 'ynab';
 
-	let loading = $state(false);
+	let loading = $state(true);
 
 	onMount(async () => {
-		loading = true;
-
 		if (browser) {
 			await new Promise((resolve) => setTimeout(resolve, 500));
 		}
@@ -51,20 +49,27 @@
 		}
 
 		try {
-			const responseData = await new ynab.API(token).budgets.getBudgets();
+			const response = await fetch('https://api.ynab.com/v1/budgets', {
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
 
-			responseData.data.budgets.forEach(async (budget) => {
-				await db.budgets.put(budget, 'id');
+			const responseData: BudgetSummaryResponse = await response.json();
+
+			const defaultBudget = responseData.data.default_budget?.id;
+
+			responseData.data.budgets.forEach(async (budget: BudgetDetail) => {
+				await db.budgets.put({ ...budget, is_default: budget.id === defaultBudget }, 'id');
 			});
 
 			localStorage.setItem('last_budget_fetch', new Date().toISOString());
-			localStorage.setItem('default_budget_id', responseData.data.default_budget?.id || '');
 
 			alert('Budgets fetched and stored locally!');
 		} catch (error) {
 			console.error('Error fetching budgets from YNAB:', error);
 
-			if ((error as ynab.ErrorResponse).error.id === '401') {
+			if ((error as ErrorResponse).error.id === '401') {
 				alert('Your YNAB access token is invalid or has expired. Please log in again.');
 				sessionStorage.removeItem('ynab_access_token');
 				window.location.reload();
