@@ -116,7 +116,7 @@
 						<tr>
 							<td class="border px-4 py-2">{budget.name}</td>
 							<td class="border px-4 py-2">
-								<a href={`/budgets/${budget.id}`} class="text-blue-500 hover:underline"
+								<a href={`${currentUrl}/budgets/${budget.id}`} class="text-blue-500 hover:underline"
 									>View Details
 								</a>
 							</td>
