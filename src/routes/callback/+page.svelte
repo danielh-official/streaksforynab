@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { PUBLIC_BASE_PATH } from '$env/static/public';
 
 	onMount(() => {
 		const hash = page.url.hash.substring(1);
@@ -10,7 +11,7 @@
 
 		if (accessToken) {
 			sessionStorage.setItem('ynab_access_token', accessToken);
-			goto('/');
+			goto(PUBLIC_BASE_PATH || '/');
 		}
 	});
 </script>
