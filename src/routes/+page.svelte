@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { derived } from 'svelte/store';
 	import { db } from '$lib/db';
 	import { liveQuery } from 'dexie';
 	import type { BudgetDetail, BudgetSummaryResponse, ErrorResponse } from 'ynab';
+	import { page } from '$app/state';
 
 	let loading = $state(true);
 
@@ -16,30 +16,24 @@
 		loading = false;
 	});
 
-	let currentUrl = derived([], () => {
+	let currentUrl = $derived.by(() => {
 		if (browser) {
-			// Get current root URL + path
-			// On GitHub, it would be https://username.github.io/repo-name/
-			// We need to adapt it such that it can work on a GitHub pages site as well as a traditional site
-
-			const { protocol, host, pathname } = window.location;
-			const pathSegments = pathname.split('/').filter(Boolean);
-			const basePath =
-				pathSegments.length > 0 && pathSegments[0] === 'streaksforynab' ? '/streaksforynab' : '';
-			return `${protocol}//${host}${basePath}`;
+			return page.url.origin;
 		}
 		return '';
 	});
 
-	let authUrl = derived(currentUrl, ($currentUrl) => {
+	$inspect(currentUrl);
+
+	let authUrl = $derived.by(() => {
 		const clientId = 'BcdLFTpW1QxdDNy0RwfCiuTxEKSYMB0i3cQRB8SpkeY';
 
-		const redirectUri = `${$currentUrl}/callback`;
+		const redirectUri = `${currentUrl}/callback`;
 
 		return `https://app.ynab.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token`;
 	});
 
-	let authToken = derived([], () => {
+	let authToken = $derived.by(() => {
 		if (browser) {
 			return sessionStorage.getItem('ynab_access_token') || null;
 		}
@@ -98,7 +92,7 @@
 		<div
 			class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"
 		></div>
-	{:else if $authToken}
+	{:else if authToken}
 		<div class="text-center flex flex-col gap-y-8">
 			<h1 class="text-2xl font-bold mb-4">You are logged in!</h1>
 
@@ -134,7 +128,7 @@
 		<div class="text-center flex flex-col gap-y-6">
 			<h1 class="text-2xl font-bold mb-4">Welcome to Streaks (For YNAB)</h1>
 			<p class="mb-4">Please log in with your YNAB account to continue.</p>
-			<a href={$authUrl} class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+			<a href={authUrl} class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
 				>Log in with YNAB</a
 			>
 		</div>
