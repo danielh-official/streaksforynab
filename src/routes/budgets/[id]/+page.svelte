@@ -308,7 +308,7 @@
 		<div class="text-center flex flex-col gap-y-8">
 			<div class="flex md:flex-row flex-col gap-y-4 gap-x-4 justify-center p-5">
 				<a
-					href={`/${PUBLIC_BASE_PATH ? PUBLIC_BASE_PATH + '/' : ''}`}
+					href={`${PUBLIC_BASE_PATH ? PUBLIC_BASE_PATH : '/'}`}
 					class="text-blue-500 px-4 py-2 rounded hover:text-blue-600 hover:underline cursor-pointer"
 				>
 					Back to Budgets
