@@ -1,48 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { derived } from 'svelte/store';
-	import * as ynab from 'ynab';
 	import { db, type HabitQuery } from '$lib/db';
 	import { page } from '$app/state';
 	import { liveQuery } from 'dexie';
 	import HabitComponent from '$lib/components/habit.svelte';
 	import { setTransactionsAndDayStatusesForHabit } from '$lib';
 	import QueryBuilder from '$lib/components/habit/QueryBuilder.svelte';
+	import type { TransactionDetail, TransactionsResponse } from 'ynab';
 
-	let loading = $state(false);
+	let loading = $state(true);
 
 	onMount(async () => {
-		loading = true;
-
 		if (browser) {
 			await new Promise((resolve) => setTimeout(resolve, 500));
 		}
 
 		loading = false;
-	});
-
-	let currentUrl = derived([], () => {
-		if (browser) {
-			// Get current root URL
-			return window.location.origin;
-		}
-		return '';
-	});
-
-	let authUrl = derived(currentUrl, ($currentUrl) => {
-		const clientId = 'BcdLFTpW1QxdDNy0RwfCiuTxEKSYMB0i3cQRB8SpkeY';
-
-		const redirectUri = `${$currentUrl}/callback`;
-
-		return `https://app.ynab.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token`;
-	});
-
-	let authToken = derived([], () => {
-		if (browser) {
-			return sessionStorage.getItem('ynab_access_token') || null;
-		}
-		return null;
 	});
 
 	let fetchingTransactions = $state(false);
@@ -51,6 +25,7 @@
 		if (!browser) return;
 
 		const token = sessionStorage.getItem('ynab_access_token');
+
 		if (!token) return;
 
 		const budgetId = page.params.id;
@@ -68,25 +43,20 @@
 			.catch(() => 0);
 
 		try {
-			const responseData = await new ynab.API(token).transactions.getTransactions(
-				budgetId,
-				undefined,
-				undefined,
-				lastKnowledgeOfServer
+			const response = await fetch(
+				`https://api.ynab.com/v1/budgets/${budgetId}/transactions?last_knowledge_of_server=${lastKnowledgeOfServer}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				}
 			);
 
-			responseData.data.transactions.forEach(async (transaction) => {
+			const responseData: TransactionsResponse = await response.json();
+
+			responseData.data.transactions.forEach(async (transaction: TransactionDetail) => {
 				await db.transactions.put(transaction, 'id');
 			});
-
-			db.meta_budgets.put(
-				{
-					id: budgetId,
-					transactions_server_knowledge: responseData.data.server_knowledge,
-					last_fetched: new Date()
-				},
-				'id'
-			);
 
 			alert('Transactions fetched and stored locally!');
 
@@ -101,6 +71,18 @@
 					query: habit.query
 				});
 			});
+
+			const now = new Date();
+
+			db.meta_budgets.put(
+				{
+					id: budgetId,
+					transactions_server_knowledge: responseData.data.server_knowledge,
+					transactions_last_fetched: now,
+					habits_last_refreshed: now
+				},
+				'id'
+			);
 		} catch (error) {
 			console.error('Error fetching transactions:', error);
 			fetchingTransactions = false;
@@ -108,11 +90,50 @@
 		}
 	}
 
+	let refreshingHabits = $state(false);
+
+	async function refreshHabits() {
+		if (!browser) return;
+
+		refreshingHabits = true;
+
+		// Small delay to show loading state
+		await new Promise((resolve) => setTimeout(resolve, 500));
+
+		try {
+			$habits.forEach((habit) => {
+				setTransactionsAndDayStatusesForHabit({
+					habit_id: habit.id,
+					goal_type: habit.goal_type,
+					goal: habit.goal,
+					start_date: habit.start_date,
+					query: habit.query
+				});
+			});
+
+			const metaBudget = await db.meta_budgets.get(page.params.id ?? '');
+			if (!metaBudget) throw new Error('Meta budget not found');
+
+			const now = new Date();
+
+			metaBudget.habits_last_refreshed = now;
+
+			await db.meta_budgets.put(metaBudget, 'id');
+		} catch (error) {
+			console.error('Error refreshing habits:', error);
+			alert('Failed to refresh habits.');
+		}
+
+		refreshingHabits = false;
+	}
+
 	let showHabitCreationModal = $state(false);
 
 	let createHabitDialog = $state(); // HTMLDialogElement
 
 	$effect(() => {
+		if (!browser) return;
+
 		if (showHabitCreationModal && createHabitDialog instanceof HTMLDialogElement) {
 			createHabitDialog.showModal();
 		}
@@ -139,6 +160,8 @@
 	});
 
 	async function createNewHabit(event: Event) {
+		if (!browser) return;
+
 		event.preventDefault();
 
 		const budgetId = page.params.id;
@@ -203,20 +226,36 @@
 	}
 
 	const lastFetched = liveQuery(async () => {
+		if (!browser) return;
+
 		const budgetId = page.params.id;
 		if (!budgetId) return null;
 
 		const meta = await db.meta_budgets.get(budgetId);
-		return meta?.last_fetched || null;
+		return meta?.transactions_last_fetched || null;
+	});
+
+	const habitsLastRefreshed = liveQuery(async () => {
+		if (!browser) return;
+
+		const budgetId = page.params.id;
+		if (!budgetId) return null;
+
+		const meta = await db.meta_budgets.get(budgetId);
+		return meta?.habits_last_refreshed || null;
 	});
 
 	const habits = liveQuery(() => db.habits.toArray());
+
+	const transactions = liveQuery(() => db.transactions.toArray());
 
 	let viewHabitDialog = $state(); // HTMLDialogElement
 
 	let showViewHabitModal = $state(false);
 
 	$effect(() => {
+		if (!browser) return;
+
 		if (showViewHabitModal && viewHabitDialog instanceof HTMLDialogElement) {
 			viewHabitDialog.showModal();
 		}
@@ -224,6 +263,34 @@
 		if (!showViewHabitModal && viewHabitDialog instanceof HTMLDialogElement) {
 			viewHabitDialog.close();
 		}
+	});
+
+	const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'always' });
+
+	let lastFetchedRelative = $derived.by(() => {
+		if (!browser) return '';
+
+		if (!$lastFetched) return 'Never';
+
+		const now = new Date();
+		const lastFetchedDate = new Date($lastFetched);
+
+		const diffInMinutes = Math.round((lastFetchedDate.getTime() - now.getTime()) / 1000 / 60);
+
+		return rtf.format(diffInMinutes, 'minute');
+	});
+
+	let habitsLastRefreshedRelative = $derived.by(() => {
+		if (!browser) return '';
+
+		if (!$habitsLastRefreshed) return 'Never';
+
+		const now = new Date();
+		const lastRefreshedDate = new Date($habitsLastRefreshed);
+
+		const diffInMinutes = Math.round((lastRefreshedDate.getTime() - now.getTime()) / 1000 / 60);
+
+		return rtf.format(diffInMinutes, 'minute');
 	});
 </script>
 
@@ -236,17 +303,34 @@
 		<div
 			class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"
 		></div>
-	{:else if $authToken}
+	{:else}
 		<div class="text-center flex flex-col gap-y-8">
 			<div class="flex md:flex-row flex-col gap-y-4 gap-x-4 justify-center p-5">
-				<a href="/" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+				<a
+					href="/"
+					class="text-blue-500 px-4 py-2 rounded hover:text-blue-600 hover:underline cursor-pointer"
+				>
 					Back to Budgets
 				</a>
 				<button
 					onclick={fetchTransactionsForBudget}
 					class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer"
 				>
-					Fetch Transactions For Budget
+					{#if fetchingTransactions}
+						Fetching Transactions...
+					{:else}
+						Fetch Transactions For Budget
+					{/if}
+				</button>
+				<button
+					onclick={refreshHabits}
+					class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 cursor-pointer"
+				>
+					{#if refreshingHabits}
+						Refreshing Habits...
+					{:else}
+						Refresh Habits
+					{/if}
 				</button>
 				<button
 					class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 cursor-pointer"
@@ -337,23 +421,30 @@
 				</dialog>
 			</div>
 
-			{#if fetchingTransactions}
-				<p>Fetching transactions...</p>
-			{/if}
-
-			<div class="flex flex-col gap-y-2 border border-gray-300 p-4">
+			<div class="grid grid-cols-2 gap-y-2 border border-gray-300 p-4">
 				<div>
-					Transactions Last Fetched: {#if $lastFetched}
-						{new Date($lastFetched).toLocaleString()}
-					{:else}
-						Never
-					{/if}
+					<div>
+						Transactions Last Fetched: {#if $lastFetched}
+							{lastFetchedRelative}
+						{:else}
+							Never
+						{/if}
+					</div>
+					<div>
+						Habits Last Refreshed: {#if $habitsLastRefreshed}
+							{habitsLastRefreshedRelative}
+						{:else}
+							Never
+						{/if}
+					</div>
 				</div>
-
 				<div>
-					Transactions Count: {#await db.transactions.count() then count}
-						{count}
-					{/await}
+					<div>
+						Habits Count: {$habits?.length || 0}
+					</div>
+					<div>
+						Transactions Count: {$transactions?.length || 0}
+					</div>
 				</div>
 			</div>
 
@@ -362,14 +453,6 @@
 					<HabitComponent {habit} />
 				{/each}
 			</div>
-		</div>
-	{:else}
-		<div class="text-center">
-			<h1 class="text-2xl font-bold mb-4">Welcome to Streaks (For YNAB)</h1>
-			<p class="mb-4">Please log in with your YNAB account to continue.</p>
-			<a href={$authUrl} class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-				>Log in with YNAB</a
-			>
 		</div>
 	{/if}
 </div>

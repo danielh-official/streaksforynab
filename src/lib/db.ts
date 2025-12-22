@@ -1,7 +1,7 @@
 import { Dexie, type EntityTable } from 'dexie';
 import type { BudgetDetail, TransactionDetail } from 'ynab';
 
-export interface HabitQuery {
+interface HabitQuery {
 	operator: 'and' | 'or';
 	subgroups: {
 		operator: 'and' | 'or';
@@ -16,7 +16,8 @@ export interface HabitQuery {
 interface MetaBudget {
 	id: string;
 	transactions_server_knowledge: number;
-	last_fetched: Date;
+	transactions_last_fetched: Date;
+	habits_last_refreshed: Date | null;
 }
 
 interface Habit {
@@ -39,8 +40,12 @@ interface HabitDayRecord {
 	amount: number;
 }
 
+interface CustomBudgetDetail extends BudgetDetail {
+	is_default?: boolean;
+}
+
 const db = new Dexie('StreaksForYnabDB') as Dexie & {
-	budgets: EntityTable<BudgetDetail, 'id'>;
+	budgets: EntityTable<CustomBudgetDetail, 'id'>;
 	transactions: EntityTable<TransactionDetail, 'id'>;
 	meta_budgets: EntityTable<MetaBudget, 'id'>;
 	habits: EntityTable<Habit, 'id'>;
@@ -54,5 +59,5 @@ db.version(1).stores({
 	habits: '++id'
 });
 
-export type { MetaBudget, Habit, HabitDayRecord };
+export type { MetaBudget, Habit, HabitDayRecord, CustomBudgetDetail, HabitQuery };
 export { db };
