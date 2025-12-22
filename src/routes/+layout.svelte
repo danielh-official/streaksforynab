@@ -38,7 +38,7 @@
 			class="text-blue-500 hover:underline">Privacy Policy</a
 		>
 	</p>
-	<p class="mt-4 md:px-40 px-5 pb-5 w-1/2 mx-auto">
+	<p class="mt-4 md:px-40 px-5 pb-5 min-[1450px]:w-1/2 min-[1450px]:mx-auto">
 		<b>Statement of Affiliation</b>: We are not affiliated, associated, or in any way officially
 		connected with YNAB or any of its subsidiaries or affiliates. The official YNAB website can be
 		found at <a class="text-blue-500 hover:underline" href="https://www.ynab.com" target="_blank" rel="noopener noreferrer">https://www.ynab.com</a>. The names YNAB and You Need A Budget, as well as related names,
