@@ -1,6 +1,6 @@
 # Privacy
 
-**Last Updated: December 20, 2025**
+**Last Updated: December 22, 2025**
 
 Thank you for choosing Streaks (For YNAB) (referred to as “we,” “our,” or “us”). We are committed to protecting your privacy and handling your data with the utmost care. This privacy policy outlines how we handle, store, and secure the data obtained through the YNAB API to ensure your confidence and peace of mind while using our services.
 
@@ -10,7 +10,7 @@ Streaks uses the YNAB API to access and retrieve financial data from your YNAB a
 
 The data obtained through the YNAB API is used solely for the purpose of providing our services to you. It allows us to analyze and present your spending habit data. We will not use this data for any other purpose without your explicit consent.
 
-Most data retrieved from YNAB is stored in the `StreaksForYnabDB` IndexedDB on your browser. Default budget id is stored in local storage. Your access token, which is used to authorize the app to retrieve data from YNAB, is stored in session storage, which gets cleared whenever you close your browser.
+Most data retrieved from YNAB is stored in the `StreaksForYnabDB` IndexedDB on your browser. Your access token, which is used to authorize the app to retrieve data from YNAB, is stored in session storage, which gets cleared whenever you close your browser.
 
 Furthermore, the authorization method (Implicit Grant Flow) for your access token ensures it expires 2 hours after receipt.
 

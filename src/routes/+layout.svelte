@@ -31,6 +31,13 @@
 			title="coin icons">Coin icons created by Ardiansyah - Flaticon</a
 		>
 	</p>
+	<p class="mt-4 md:px-40 px-5">
+		<a
+			target="_blank"
+			href="https://github.com/danielh-official/streaksforynab/blob/main/PRIVACY.md"
+			class="text-blue-500 hover:underline">Privacy Policy</a
+		>
+	</p>
 	<p class="mt-4 md:px-40 px-5 pb-5">
 		<b>Statement of Affiliation</b>: We are not affiliated, associated, or in any way officially
 		connected with YNAB or any of its subsidiaries or affiliates. The official YNAB website can be
