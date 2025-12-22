@@ -59,8 +59,8 @@
 
 	let editHabitFormData: HabitFormData = $state({
 		name: '',
-		goal_type: 'below',
-		goal: 10,
+		goal_type: 'above',
+		goal: 0,
 		start_date: new Date().toISOString().split('T')[0],
 		query: null
 	});
@@ -72,7 +72,7 @@
 				goal_type: habit.goal_type,
 				goal: habit.goal,
 				start_date: habit.start_date.toISOString().split('T')[0],
-				query: habit.query || null
+				query: habit.query
 			};
 			showHabitEditModal = true;
 		};
@@ -88,6 +88,22 @@
 		event.preventDefault();
 
 		try {
+			function normalizeHabitQuery(query: HabitQuery | null): HabitQuery | null {
+				if (!query) return null;
+
+				return {
+					operator: query.operator,
+					subgroups: query.subgroups.map((sg) => ({
+						operator: sg.operator,
+						conditions: sg.conditions.map((c) => ({
+							field: c.field,
+							value: c.value,
+							operator: c.operator
+						}))
+					}))
+				};
+			}
+
 			db.habits
 				.where({
 					id: habit.id
@@ -97,7 +113,7 @@
 					goal_type: editHabitFormData.goal_type,
 					goal: Number(editHabitFormData.goal),
 					start_date: new Date(editHabitFormData.start_date + 'T00:00:00'),
-					query: editHabitFormData.query || null,
+					query: normalizeHabitQuery(editHabitFormData.query),
 					updated_at: new Date()
 				});
 
@@ -106,7 +122,7 @@
 				goal_type: editHabitFormData.goal_type,
 				goal: Number(editHabitFormData.goal),
 				start_date: new Date(editHabitFormData.start_date + 'T00:00:00'),
-				query: editHabitFormData.query || null
+				query: editHabitFormData.query
 			});
 		} catch (error) {
 			console.error('Error editing habit:', error);
