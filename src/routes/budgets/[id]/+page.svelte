@@ -10,6 +10,8 @@
 	import type { TransactionDetail, TransactionsResponse } from 'ynab';
 	import { PUBLIC_BASE_PATH } from '$env/static/public';
 
+	let isOnline = $state(navigator.onLine);
+
 	let loading = $state(true);
 
 	onMount(async () => {
@@ -18,6 +20,13 @@
 		}
 
 		loading = false;
+
+		const updateStatus = () => {
+			isOnline = navigator.onLine;
+		};
+
+		window.addEventListener('online', updateStatus);
+		window.addEventListener('offline', updateStatus);
 	});
 
 	let fetchingTransactions = $state(false);
@@ -306,6 +315,10 @@
 		></div>
 	{:else}
 		<div class="text-center flex flex-col gap-y-8">
+			{#if !isOnline}
+				<p class="text-red-500">You are currently offline. Some features may be unavailable.</p>
+			{/if}
+
 			<div class="flex md:flex-row flex-col gap-y-4 gap-x-4 justify-center p-5">
 				<a
 					href={`${PUBLIC_BASE_PATH ? PUBLIC_BASE_PATH : '/'}`}
@@ -316,7 +329,7 @@
 				<button
 					onclick={fetchTransactionsForBudget}
 					class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-					disabled={fetchingTransactions}
+					disabled={fetchingTransactions || !isOnline}
 				>
 					{#if fetchingTransactions}
 						Fetching Transactions...

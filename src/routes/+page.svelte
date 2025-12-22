@@ -7,6 +7,8 @@
 	import { PUBLIC_BASE_PATH } from '$env/static/public';
 	import { page } from '$app/state';
 
+	let isOnline = $state(navigator.onLine);
+
 	let loading = $state(true);
 
 	onMount(async () => {
@@ -15,6 +17,13 @@
 		}
 
 		loading = false;
+
+		const updateStatus = () => {
+			isOnline = navigator.onLine;
+		};
+
+		window.addEventListener('online', updateStatus);
+		window.addEventListener('offline', updateStatus);
 	});
 
 	let currentUrl = $derived.by(() => {
@@ -95,9 +104,14 @@
 		<div class="text-center flex flex-col gap-y-8">
 			<h1 class="text-2xl font-bold mb-4">You are logged in!</h1>
 
+			{#if !isOnline}
+				<p class="text-red-500">You are currently offline. Some features may be unavailable.</p>
+			{/if}
+
 			<button
 				onclick={fetchYnabBudgets}
-				class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer"
+				class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+				disabled={!isOnline}
 			>
 				Fetch YNAB Budgets
 			</button>
@@ -125,10 +139,18 @@
 		</div>
 	{:else}
 		<div class="text-center flex flex-col gap-y-6">
+			{#if !isOnline}
+				<p class="text-red-500">You are currently offline. Some features may be unavailable.</p>
+			{/if}
+
 			<h1 class="text-2xl font-bold mb-4">Welcome to Streaks (For YNAB)</h1>
 			<p class="mb-4">Please log in with your YNAB account to continue.</p>
-			<a href={authUrl} class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-				>Log in with YNAB</a
+			<a
+				href={isOnline ? authUrl : '#'}
+				class={{
+					'bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 cursor-pointer': isOnline,
+					'bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed': !isOnline
+				}}>Log in with YNAB</a
 			>
 		</div>
 	{/if}
