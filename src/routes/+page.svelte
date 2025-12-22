@@ -18,8 +18,15 @@
 
 	let currentUrl = derived([], () => {
 		if (browser) {
-			// Get current root URL
-			return window.location.origin;
+			// Get current root URL + path
+			// On GitHub, it would be https://username.github.io/repo-name/
+			// We need to adapt it such that it can work on a GitHub pages site as well as a traditional site
+
+			const { protocol, host, pathname } = window.location;
+			const pathSegments = pathname.split('/').filter(Boolean);
+			const basePath =
+				pathSegments.length > 0 && pathSegments[0] === 'streaksforynab' ? '/streaksforynab' : '';
+			return `${protocol}//${host}${basePath}`;
 		}
 		return '';
 	});
