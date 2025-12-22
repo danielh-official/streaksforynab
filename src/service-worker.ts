@@ -72,8 +72,11 @@ self.addEventListener('fetch', (event) => {
 				throw new Error('invalid response from fetch');
 			}
 
-
-			if (response.status === 200 && cache && /^https?:$/i.test(new URL(event.request.url).protocol)) {
+			if (
+				response.status === 200 &&
+				cache &&
+				/^https?:$/i.test(new URL(event.request.url).protocol)
+			) {
 				cache.put(event.request, response.clone());
 			}
 
