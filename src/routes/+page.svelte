@@ -24,8 +24,6 @@
 		return '';
 	});
 
-	$inspect(currentUrl);
-
 	let authUrl = $derived.by(() => {
 		const clientId = 'BcdLFTpW1QxdDNy0RwfCiuTxEKSYMB0i3cQRB8SpkeY';
 
