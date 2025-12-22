@@ -9,12 +9,12 @@
   "description": "A web app to track your spending habits with YNAB.",
   "icons": [
     {
-      "src": "/icons/dollar.png",
+      "src": "/streaksforynab/icons/dollar.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/dollar.png",
+      "src": "/streaksforynab/icons/dollar.png",
       "sizes": "512x512",
       "type": "image/png"
     }
