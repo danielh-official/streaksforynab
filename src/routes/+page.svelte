@@ -3,8 +3,8 @@
 	import { browser } from '$app/environment';
 	import { db } from '$lib/db';
 	import { liveQuery } from 'dexie';
-	import type { BudgetDetail, BudgetSummaryResponse, ErrorResponse } from 'ynab';
-	import { PUBLIC_BASE_PATH } from '$env/static/public';
+	import type { BudgetSummaryResponse, ErrorResponse } from 'ynab';
+	import { PUBLIC_BASE_PATH, PUBLIC_YNAB_CLIENT_ID } from '$env/static/public';
 	import { page } from '$app/state';
 
 	let isOnline = $state(navigator.onLine);
@@ -34,7 +34,7 @@
 	});
 
 	let authUrl = $derived.by(() => {
-		const clientId = 'BcdLFTpW1QxdDNy0RwfCiuTxEKSYMB0i3cQRB8SpkeY';
+		const clientId = PUBLIC_YNAB_CLIENT_ID;
 
 		const redirectUri = `${currentUrl}/callback`;
 
@@ -57,35 +57,45 @@
 			return;
 		}
 
-		try {
-			const response = await fetch('https://api.ynab.com/v1/budgets', {
-				headers: {
-					Authorization: `Bearer ${token}`
+		fetch('https://api.ynab.com/v1/budgets', {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		})
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw res;
+				}
+			})
+			.then(async (responseData: BudgetSummaryResponse) => {
+				const defaultBudget = responseData.data.default_budget?.id;
+
+				for (const budget of responseData.data.budgets) {
+					await db.budgets.put({ ...budget, is_default: budget.id === defaultBudget }, 'id');
+				}
+
+				localStorage.setItem('last_budget_fetch', new Date().toISOString());
+
+				alert('Budgets fetched and stored locally!');
+			})
+			.catch(async (res) => {
+				if (res.status === 401) {
+					alert('Your YNAB access token is invalid or has expired. Please log in again.');
+					sessionStorage.removeItem('ynab_access_token');
+					window.location.reload();
+				} else {
+					let errorData: ErrorResponse;
+					try {
+						errorData = await res.json();
+						console.error('Error fetching budgets from YNAB:', errorData);
+					} catch {
+						console.error('Error fetching budgets from YNAB. Unable to parse error response.');
+					}
+					alert('Failed to fetch budgets from YNAB. Please try again.');
 				}
 			});
-
-			const responseData: BudgetSummaryResponse = await response.json();
-
-			const defaultBudget = responseData.data.default_budget?.id;
-
-			responseData.data.budgets.forEach(async (budget: BudgetDetail) => {
-				await db.budgets.put({ ...budget, is_default: budget.id === defaultBudget }, 'id');
-			});
-
-			localStorage.setItem('last_budget_fetch', new Date().toISOString());
-
-			alert('Budgets fetched and stored locally!');
-		} catch (error) {
-			console.error('Error fetching budgets from YNAB:', error);
-
-			if ((error as ErrorResponse).error.id === '401') {
-				alert('Your YNAB access token is invalid or has expired. Please log in again.');
-				sessionStorage.removeItem('ynab_access_token');
-				window.location.reload();
-			} else {
-				alert('Failed to fetch budgets from YNAB. Please try again.');
-			}
-		}
 	}
 
 	const budgets = liveQuery(() => db.budgets.toArray());

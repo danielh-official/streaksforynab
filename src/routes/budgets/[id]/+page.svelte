@@ -9,6 +9,7 @@
 	import QueryBuilder from '$lib/components/habit/QueryBuilder.svelte';
 	import type { TransactionDetail, TransactionsResponse } from 'ynab';
 	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 
 	let isOnline = $state(navigator.onLine);
 
@@ -17,6 +18,14 @@
 	onMount(async () => {
 		if (browser) {
 			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+
+		const tokenExists = sessionStorage.getItem('ynab_access_token') !== null;
+
+		if (!tokenExists) {
+			alert('No YNAB access token found. Please log in again.');
+			goto('/');
+			return;
 		}
 
 		loading = false;
@@ -52,52 +61,67 @@
 			.then((meta) => meta?.transactions_server_knowledge || 0)
 			.catch(() => 0);
 
-		try {
-			const response = await fetch(
-				`https://api.ynab.com/v1/budgets/${budgetId}/transactions?last_knowledge_of_server=${lastKnowledgeOfServer}`,
-				{
-					headers: {
-						Authorization: `Bearer ${token}`
-					}
+		fetch(
+			`https://api.ynab.com/v1/budgets/${budgetId}/transactions?last_knowledge_of_server=${lastKnowledgeOfServer}`,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`
 				}
-			);
+			}
+		)
+			.then((res) => {
+				res
+					.json()
+					.then(async (responseData: TransactionsResponse) => {
+						responseData.data.transactions.forEach(async (transaction: TransactionDetail) => {
+							await db.transactions.put(transaction, 'id');
+						});
 
-			const responseData: TransactionsResponse = await response.json();
+						alert('Transactions fetched and stored locally!');
 
-			responseData.data.transactions.forEach(async (transaction: TransactionDetail) => {
-				await db.transactions.put(transaction, 'id');
+						fetchingTransactions = false;
+
+						$habits.forEach((habit: Habit) => {
+							setTransactionsAndDayStatusesForHabit({
+								habit_id: habit.id,
+								goal_type: habit.goal_type,
+								goal: habit.goal,
+								start_date: habit.start_date,
+								query: habit.query
+							});
+						});
+
+						const now = new Date();
+
+						db.meta_budgets.put(
+							{
+								id: budgetId,
+								transactions_server_knowledge: responseData.data.server_knowledge,
+								transactions_last_fetched: now,
+								habits_last_refreshed: now
+							},
+							'id'
+						);
+					})
+					.catch((error) => {
+						console.error('Error parsing transactions response:', error);
+						fetchingTransactions = false;
+						alert('Failed to fetch transactions.');
+					});
+			})
+			.catch((error) => {
+				console.error('Error fetching transactions:', error);
+
+				if (error.status === 401) {
+					alert('Your YNAB access token is invalid or has expired. Please log in again.');
+					sessionStorage.removeItem('ynab_access_token');
+					window.location.reload();
+					return;
+				}
+
+				fetchingTransactions = false;
+				alert('Failed to fetch transactions.');
 			});
-
-			alert('Transactions fetched and stored locally!');
-
-			fetchingTransactions = false;
-
-			$habits.forEach((habit: Habit) => {
-				setTransactionsAndDayStatusesForHabit({
-					habit_id: habit.id,
-					goal_type: habit.goal_type,
-					goal: habit.goal,
-					start_date: habit.start_date,
-					query: habit.query
-				});
-			});
-
-			const now = new Date();
-
-			db.meta_budgets.put(
-				{
-					id: budgetId,
-					transactions_server_knowledge: responseData.data.server_knowledge,
-					transactions_last_fetched: now,
-					habits_last_refreshed: now
-				},
-				'id'
-			);
-		} catch (error) {
-			console.error('Error fetching transactions:', error);
-			fetchingTransactions = false;
-			alert('Failed to fetch transactions.');
-		}
 	}
 
 	let refreshingHabits = $state(false);
