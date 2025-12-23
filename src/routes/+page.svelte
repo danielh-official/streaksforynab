@@ -4,7 +4,7 @@
 	import { db } from '$lib/db';
 	import { liveQuery } from 'dexie';
 	import type { BudgetSummaryResponse, ErrorResponse } from 'ynab';
-	import { PUBLIC_BASE_PATH, PUBLIC_YNAB_CLIENT_ID } from '$env/static/public';
+	import { PUBLIC_BASE_PATH } from '$env/static/public';
 	import { page } from '$app/state';
 
 	let isOnline = $state(navigator.onLine);
@@ -34,7 +34,7 @@
 	});
 
 	let authUrl = $derived.by(() => {
-		const clientId = PUBLIC_YNAB_CLIENT_ID;
+		const clientId = 'EodHGvfUv9JPSKwPqpa_5jYZVlBZbJ60_7bwWnNusMQ';
 
 		const redirectUri = `${currentUrl}/callback`;
 
