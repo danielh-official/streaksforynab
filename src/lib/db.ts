@@ -52,12 +52,11 @@ const db = new Dexie('StreaksForYnabDB') as Dexie & {
 	habits: EntityTable<Habit, 'id'>;
 };
 
-// Schema declaration:
-db.version(1).stores({
+db.version(2).stores({
 	budgets: 'id',
 	transactions: 'id',
 	meta_budgets: 'id',
-	habits: '++id'
+	habits: '++id, budget_id'
 });
 
 export type { MetaBudget, Habit, HabitDayRecord, CustomBudgetDetail, HabitQuery };

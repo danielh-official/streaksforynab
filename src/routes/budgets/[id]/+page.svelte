@@ -72,7 +72,7 @@
 
 			fetchingTransactions = false;
 
-			$habits.forEach((habit) => {
+			$habits.forEach((habit: Habit) => {
 				setTransactionsAndDayStatusesForHabit({
 					habit_id: habit.id,
 					goal_type: habit.goal_type,
@@ -111,7 +111,7 @@
 		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		try {
-			$habits.forEach((habit) => {
+			$habits.forEach((habit: Habit) => {
 				setTransactionsAndDayStatusesForHabit({
 					habit_id: habit.id,
 					goal_type: habit.goal_type,
@@ -260,7 +260,13 @@
 		return meta?.habits_last_refreshed || null;
 	});
 
-	const habits = liveQuery(() => db.habits.toArray());
+	let habits = liveQuery(
+		async () =>
+			await db.habits
+				.where('budget_id')
+				.equals(page.params.id ?? '')
+				.toArray()
+	);
 
 	const transactions = liveQuery(() => db.transactions.toArray());
 
