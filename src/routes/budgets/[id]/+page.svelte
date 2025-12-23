@@ -515,6 +515,29 @@
 				>
 					Import Habits
 				</button>
+				<button
+					class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 cursor-pointer"
+					onclick={async () => {
+						if (
+							confirm(
+								'Are you sure you want to delete ALL habits for this budget? This action cannot be undone.'
+							)
+						) {
+							const budgetId = page.params.id;
+
+							if (!budgetId) {
+								alert('No budget ID found in URL!');
+								return;
+							}
+
+							const habitsToDelete = await db.habits.where('budget_id').equals(budgetId).toArray();
+
+							for (const habit of habitsToDelete) {
+								await db.habits.delete(habit.id!);
+							}
+						}
+					}}>Delete All Habits</button
+				>
 			</div>
 
 			<div class="grid grid-cols-2 gap-y-2 border border-gray-300 p-4">
