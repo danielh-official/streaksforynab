@@ -319,7 +319,7 @@
 	<title>Budget | Streaks (For YNAB)</title>
 </svelte:head>
 
-<div class="flex justify-center items-center md:h-screen">
+<div class="flex justify-center items-center">
 	{#if loading}
 		<div
 			class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"
@@ -544,7 +544,14 @@
 				</div>
 			</div>
 
-			<div class="grid md:grid-cols-3 gap-4">
+			<div
+				class={{
+					'grid gap-4': true,
+					'md:grid-cols-1': $habits?.length === 1,
+					'md:grid-cols-2': $habits?.length % 2 === 0,
+					'md:grid-cols-3': $habits?.length % 2 !== 0 && $habits?.length > 1
+				}}
+			>
 				{#each $habits as habit}
 					<HabitComponent {habit} />
 				{/each}

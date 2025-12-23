@@ -5,52 +5,54 @@
 	let { children } = $props();
 </script>
 
-<div class="dark:text-white">
+<div class="dark:text-white grid grid-rows-[auto_1fr_auto] min-h-screen">
 	<div class="flex flex-col items-end p-5">
 		<WorksWithYnab />
 	</div>
 
-	{@render children()}
-</div>
+	<div class="px-5 md:px-10 lg:px-20 py-5 flex justify-center">
+		{@render children()}
+	</div>
 
-<footer class="text-center text-sm text-gray-500">
-	<p class="mt-8 md:px-40 px-5 pt-5 border-t border-gray-300">
-		&copy; {new Date().getFullYear()} Streaks (For YNAB). Built with
-		<a
-			href="https://svelte.dev"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="text-blue-500 hover:underline">SvelteKit</a
-		>.
-		<br />
-		<a
-			class="text-blue-500 hover:underline"
-			target="_blank"
-			rel="noopener noreferrer"
-			href="https://www.flaticon.com/free-icons/coin"
-			title="coin icons">Coin icons created by Ardiansyah - Flaticon</a
-		>
-	</p>
-	<p class="mt-4 md:px-40 px-5">
-		<a
-			target="_blank"
-			href="https://github.com/danielh-official/streaksforynab/blob/main/PRIVACY.md"
-			class="text-blue-500 hover:underline">Privacy Policy</a
-		>
-	</p>
-	<p class="mt-4 md:px-40 px-5 pb-5 min-[1450px]:w-1/2 min-[1450px]:mx-auto">
-		<b>Statement of Affiliation</b>: We are not affiliated, associated, or in any way officially
-		connected with YNAB or any of its subsidiaries or affiliates. The official YNAB website can be
-		found at
-		<a
-			class="text-blue-500 hover:underline"
-			href="https://www.ynab.com"
-			target="_blank"
-			rel="noopener noreferrer">https://www.ynab.com</a
-		>. The names YNAB and You Need A Budget, as well as related names, tradenames, marks,
-		trademarks, emblems, and images are registered trademarks of YNAB.
-	</p>
-</footer>
+	<footer class="text-center text-sm text-gray-500 bg-gray-100 dark:bg-gray-800">
+		<p class="mt-8 md:px-40 px-5 pt-5">
+			&copy; {new Date().getFullYear()} Streaks (For YNAB). Built with
+			<a
+				href="https://svelte.dev"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-blue-500 hover:underline">SvelteKit</a
+			>.
+			<br />
+			<a
+				class="text-blue-500 hover:underline"
+				target="_blank"
+				rel="noopener noreferrer"
+				href="https://www.flaticon.com/free-icons/coin"
+				title="coin icons">Coin icons created by Ardiansyah - Flaticon</a
+			>
+		</p>
+		<p class="mt-4 md:px-40 px-5">
+			<a
+				target="_blank"
+				href="https://github.com/danielh-official/streaksforynab/blob/main/PRIVACY.md"
+				class="text-blue-500 hover:underline">Privacy Policy</a
+			>
+		</p>
+		<p class="mt-4 md:px-40 px-5 pb-5 min-[1450px]:w-1/2 min-[1450px]:mx-auto">
+			<b>Statement of Affiliation</b>: We are not affiliated, associated, or in any way officially
+			connected with YNAB or any of its subsidiaries or affiliates. The official YNAB website can be
+			found at
+			<a
+				class="text-blue-500 hover:underline"
+				href="https://www.ynab.com"
+				target="_blank"
+				rel="noopener noreferrer">https://www.ynab.com</a
+			>. The names YNAB and You Need A Budget, as well as related names, tradenames, marks,
+			trademarks, emblems, and images are registered trademarks of YNAB.
+		</p>
+	</footer>
+</div>
 
 <a
 	target="_blank"
