@@ -641,7 +641,6 @@
 			>
 				{#each $habits as habit (habit.id)}
 					<div
-						class="cursor-move"
 						role="button"
 						tabindex={0}
 						draggable={true}
