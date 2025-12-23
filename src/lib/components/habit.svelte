@@ -3,8 +3,12 @@
 	import { setTransactionsAndDayStatusesForHabit } from '$lib';
 	import QueryBuilder from './habit/QueryBuilder.svelte';
 
-	let { habit } = $props<{
+	let { habit, ondragstart, ondragover, ondrop, ondragend } = $props<{
 		habit: Habit;
+		ondragstart: (event: DragEvent) => void;
+		ondragover: (event: DragEvent) => void;
+		ondrop: (event: DragEvent) => void;
+		ondragend: (event: DragEvent) => void;
 	}>();
 
 	let showHabitCreationModal = $state(false);
@@ -218,18 +222,43 @@
 	const todayProgress = $derived.by(() => {
 		return todayAmount / habit.goal;
 	});
+
+	function handleLocalDragStart(event: DragEvent) {
+		// Call parent handler to set up drag state / dataTransfer
+		ondragstart(event);
+
+		// Make it look like the whole card is being dragged
+		const handle = event.currentTarget as HTMLElement | null;
+		const card = handle?.closest('[data-habit-card]') as HTMLElement | null;
+		if (!card || !event.dataTransfer) return;
+
+		const rect = card.getBoundingClientRect();
+		const offsetX = event.clientX - rect.left;
+		const offsetY = event.clientY - rect.top;
+		event.dataTransfer.setDragImage(card, offsetX, offsetY);
+	}
 </script>
 
 <div
 	class="border border-gray-300 rounded p-4 shadow hover:shadow-lg transition"
 	id={'habit-' + habit.id}
+	data-habit-card
+	{ondragover}
+	{ondrop}
+	{ondragend}
+	role="button"
+	tabindex={0}
 >
 	<div class="flex justify-end mb-2">
 		<button
+			id="drag-handle-{habit.id}"
 			type="button"
 			class="text-gray-400 hover:text-gray-600 cursor-move"
 			title="Drag to reorder"
 			aria-label="Drag habit to reorder"
+			data-drag-handle="true"
+			draggable={true}
+			ondragstart={handleLocalDragStart}
 		>
 			☰
 		</button>

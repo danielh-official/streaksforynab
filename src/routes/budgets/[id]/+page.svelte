@@ -640,17 +640,13 @@
 				}}
 			>
 				{#each $habits as habit (habit.id)}
-					<div
-						role="button"
-						tabindex={0}
-						draggable={true}
-						ondragstart={(event) => handleDragStart(event, habit.id!)}
+					<HabitComponent
+						{habit}
+						ondragstart={(event: DragEvent) => handleDragStart(event, habit.id!)}
 						ondragover={handleDragOver}
-						ondrop={(event) => handleDrop(event, habit.id!)}
+						ondrop={(event: DragEvent) => handleDrop(event, habit.id!)}
 						ondragend={handleDragEnd}
-					>
-						<HabitComponent {habit} />
-					</div>
+					/>
 				{/each}
 			</div>
 		</div>
