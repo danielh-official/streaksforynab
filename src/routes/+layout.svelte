@@ -5,7 +5,7 @@
 	let { children } = $props();
 </script>
 
-<div class="dark:text-white grid grid-rows-[auto_1fr_auto] min-h-screen">
+<div class="dark:text-white grid grid-rows-[auto_1fr_auto] min-h-screen px-4">
 	<div class="flex flex-col items-end p-5">
 		<WorksWithYnab />
 	</div>

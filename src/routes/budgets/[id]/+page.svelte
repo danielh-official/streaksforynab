@@ -688,14 +688,7 @@
 				</div>
 			</div>
 
-			<div
-				class={{
-					'grid gap-4': true,
-					'md:grid-cols-1': $habits?.length === 1,
-					'md:grid-cols-2': $habits?.length % 2 === 0,
-					'md:grid-cols-3': $habits?.length % 2 !== 0 && $habits?.length > 1
-				}}
-			>
+			<div class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 mt-4 w-full px-4">
 				{#each $habits as habit (habit.id)}
 					<HabitComponent
 						{habit}
