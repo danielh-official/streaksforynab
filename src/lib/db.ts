@@ -22,6 +22,7 @@ interface MetaBudget {
 
 interface Habit {
 	id: number;
+	budget_id: string;
 	name: string;
 	goal: number;
 	goal_type: 'above' | 'below';

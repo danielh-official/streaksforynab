@@ -193,6 +193,11 @@
 				};
 			}
 
+			if (!budgetId) {
+				alert('No budget ID found in URL!');
+				return;
+			}
+
 			const newHabit = {
 				budget_id: budgetId,
 				name: createHabitFormData.name,
@@ -473,10 +478,19 @@
 								const file = target.files[0];
 								const text = await file.text();
 								try {
+									const budgetId = page.params.id;
+
+									if (!budgetId) {
+										alert('No budget ID found in URL!');
+										return;
+									}
+
 									const importedHabits: Habit[] = JSON.parse(text);
 									for (const habit of importedHabits) {
-										await db.habits.put({
+										await db.habits.add({
 											...habit,
+											id: undefined,
+											budget_id: budgetId,
 											start_date: habit.start_date ? new Date(habit.start_date) : new Date(),
 											created_at: habit.created_at ? new Date(habit.created_at) : new Date(),
 											updated_at: habit.updated_at ? new Date(habit.updated_at) : new Date(),
