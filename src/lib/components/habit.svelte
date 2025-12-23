@@ -3,27 +3,14 @@
 	import { setTransactionsAndDayStatusesForHabit } from '$lib';
 	import QueryBuilder from './habit/QueryBuilder.svelte';
 
-	let { habit, ondragstart, ondragover, ondrop, ondragend } = $props<{
+	let { habit, ondragstart, ondragover, ondrop, ondragend, oncopy } = $props<{
 		habit: Habit;
 		ondragstart: (event: DragEvent) => void;
 		ondragover: (event: DragEvent) => void;
 		ondrop: (event: DragEvent) => void;
 		ondragend: (event: DragEvent) => void;
+		oncopy: (habitToCopy: HabitFormData) => void;
 	}>();
-
-	let showHabitCreationModal = $state(false);
-
-	let createHabitDialog = $state(); // HTMLDialogElement
-
-	$effect(() => {
-		if (showHabitCreationModal && createHabitDialog instanceof HTMLDialogElement) {
-			createHabitDialog.showModal();
-		}
-
-		if (!showHabitCreationModal && createHabitDialog instanceof HTMLDialogElement) {
-			createHabitDialog.close();
-		}
-	});
 
 	interface HabitFormData {
 		name: string;
@@ -479,6 +466,21 @@
 		<button
 			class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 cursor-pointer"
 			onclick={confirmDelete(habit.id)}>Delete</button
+		>
+
+		<!-- Opens the add habit modal with the values prefilled to copied habit -->
+
+		<button
+			class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer"
+			onclick={() => {
+				oncopy({
+					name: habit.name,
+					goal_type: habit.goal_type,
+					goal: habit.goal,
+					start_date: habit.start_date.toISOString().split('T')[0],
+					query: habit.query
+				});
+			}}>Copy</button
 		>
 	</div>
 </div>

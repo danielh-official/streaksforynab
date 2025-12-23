@@ -703,6 +703,10 @@
 						ondragover={handleDragOver}
 						ondrop={(event: DragEvent) => handleDrop(event, habit.id!)}
 						ondragend={handleDragEnd}
+						oncopy={(habitToCopy: HabitFormData) => {
+							createHabitFormData = habitToCopy;
+							showHabitCreationModal = true;
+						}}
 					/>
 				{/each}
 			</div>
