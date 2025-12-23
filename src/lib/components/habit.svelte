@@ -223,29 +223,37 @@
 		return todayAmount / habit.goal;
 	});
 
+	let isDragging = $state(false);
+
 	function handleLocalDragStart(event: DragEvent) {
 		// Call parent handler to set up drag state / dataTransfer
 		ondragstart(event);
 
-		// Make it look like the whole card is being dragged
-		const handle = event.currentTarget as HTMLElement | null;
-		const card = handle?.closest('[data-habit-card]') as HTMLElement | null;
-		if (!card || !event.dataTransfer) return;
+		isDragging = true;
 
-		const rect = card.getBoundingClientRect();
-		const offsetX = event.clientX - rect.left;
-		const offsetY = event.clientY - rect.top;
-		event.dataTransfer.setDragImage(card, offsetX, offsetY);
+		// Hide the native semi-transparent drag image
+		if (event.dataTransfer) {
+			const img = new Image();
+			img.src =
+				'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+			event.dataTransfer.setDragImage(img, 0, 0);
+		}
+	}
+
+	function handleLocalDragEnd(event: DragEvent) {
+		ondragend(event);
+		isDragging = false;
 	}
 </script>
 
 <div
-	class="border border-gray-300 rounded p-4 shadow hover:shadow-lg transition"
+	class={`border border-gray-300 rounded p-4 shadow hover:shadow-lg transition ${
+		isDragging ? 'ring-2 ring-blue-500 shadow-xl scale-105' : ''
+	}`}
 	id={'habit-' + habit.id}
 	data-habit-card
 	{ondragover}
 	{ondrop}
-	{ondragend}
 	role="button"
 	tabindex={0}
 >
@@ -259,12 +267,11 @@
 			data-drag-handle="true"
 			draggable={true}
 			ondragstart={handleLocalDragStart}
+			ondragend={handleLocalDragEnd}
 		>
 			☰
 		</button>
 	</div>
-
-	<!-- TODO: When dragging, make sure the box is not transparent. -->
 
 	<div>
 		<h2 class="text-lg font-bold">{habit.name}</h2>
