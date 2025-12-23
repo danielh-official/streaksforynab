@@ -133,12 +133,18 @@
 			recordDate.setHours(0, 0, 0, 0);
 			today.setHours(0, 0, 0, 0);
 
+			const isSkipped = habit.skipped_dates?.some(
+				(d: Date) => new Date(d).toDateString() === recordDate.toDateString()
+			);
+
 			if (recordDate > today) {
 				continue;
 			}
 
-			if (record.completed) {
+			if (record.completed && !isSkipped) {
 				streak++;
+			} else if (isSkipped) {
+				// Do nothing, continue the streak
 			} else {
 				break;
 			}
@@ -178,20 +184,32 @@
 	let anchorDate = $derived.by(() => new Date(selectedYear, selectedMonth, 1));
 
 	function getStyleForDate(date: Date): string {
+		const dateIsSkipped = (habit as Habit).skipped_dates?.some(
+			(d: Date) => new Date(d).toDateString() === date.toDateString()
+		);
+		const dateIsFuture = date > new Date();
+		const dateIsBeforeStart = date < (habit as Habit).start_date;
+
+		if (dateIsSkipped) {
+			return 'bg-yellow-500 text-white';
+		}
+
 		const record = (habit as Habit).day_records?.find(
 			(record: HabitDayRecord) => new Date(record.date).toDateString() === date.toDateString()
 		);
-		if (record) {
+
+		if (record && !dateIsFuture && !dateIsBeforeStart) {
 			return record.completed ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
 		}
-		const dateIsFuture = date > new Date();
+
 		if (dateIsFuture) {
 			return 'bg-gray-300 text-gray-500';
 		}
-		const dateIsBeforeStart = date < (habit as Habit).start_date;
+
 		if (dateIsBeforeStart) {
 			return 'bg-gray-300 text-gray-500';
 		}
+
 		return '';
 	}
 
@@ -230,6 +248,20 @@
 	function handleLocalDragEnd(event: DragEvent) {
 		ondragend(event);
 		isDragging = false;
+	}
+
+	function getDisabledStateForDate(date: Date): boolean {
+		// Disable if date is in the future
+		if (date > new Date()) {
+			return true;
+		}
+
+		// Disable if date is before habit start date
+		if (date < (habit as Habit).start_date) {
+			return true;
+		}
+
+		return false;
 	}
 </script>
 
@@ -354,11 +386,37 @@
 
 				<div class="grid grid-cols-7 gap-4">
 					{#each currentRangeOfDates as date (date.getTime())}
-						<div
-							class={`md:w-10 md:h-10 w-7 h-7 flex items-center justify-center border rounded-3xl ${getStyleForDate(date)}`}
+						<!-- On clicking, it should toggle the skipped state of the date. If the date is not skipped, it adds the date to the habit's skipped_dates array; if it is skipped, it removes it. The color of the date circle changes depending. If it's skipped, it's grayed out. If not, it's not grayed out. -->
+						<button
+							class={`md:w-10 md:h-10 w-7 h-7 flex items-center justify-center border rounded-3xl cursor-pointer disabled:cursor-not-allowed ${getStyleForDate(date)}`}
+							disabled={getDisabledStateForDate(date)}
+							onclick={async () => {
+								// If record exists, add date to habit.skipped_dates if it's not already skipped, else remove it
+
+								const dateDoesntExistInSkippedDates =
+									habit.skipped_dates.filter((d: Date) => {
+										const dDate = new Date(d);
+										return dDate.toDateString() === date.toDateString();
+									}).length === 0;
+
+								if (dateDoesntExistInSkippedDates) {
+									console.log(habit.id, dateDoesntExistInSkippedDates);
+
+									await db.habits.update(habit.id, {
+										skipped_dates: [...habit.skipped_dates, date]
+									});
+								} else {
+									await db.habits.update(habit.id, {
+										skipped_dates: habit.skipped_dates.filter((d: Date) => {
+											const dDate = new Date(d);
+											return dDate.toDateString() !== date.toDateString();
+										})
+									});
+								}
+							}}
 						>
 							{date.getDate()}
-						</div>
+						</button>
 					{/each}
 				</div>
 			</div>
