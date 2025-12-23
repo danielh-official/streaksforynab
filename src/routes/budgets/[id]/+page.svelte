@@ -504,7 +504,6 @@
 											day_records: []
 										});
 									}
-									alert('Habits imported successfully!');
 								} catch (error) {
 									console.error('Error importing habits:', error);
 									alert('Failed to import habits. Please check the file format.');
