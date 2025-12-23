@@ -386,7 +386,40 @@
 
 		const diffInMinutes = Math.round((lastFetchedDate.getTime() - now.getTime()) / 1000 / 60);
 
-		return rtf.format(diffInMinutes, 'minute');
+		// If less than 60 minutes, show in minutes
+		if (Math.abs(diffInMinutes) < 60) {
+			return rtf.format(diffInMinutes, 'minute');
+		}
+
+		// If more than minutes, convert to hours
+		if (Math.abs(diffInMinutes) >= 60) {
+			const diffInHours = Math.round(diffInMinutes / 60);
+			return rtf.format(diffInHours, 'hour');
+		}
+
+		// If more than 7 days, convert to weeks
+		if (Math.abs(diffInMinutes) >= 10080) {
+			const diffInWeeks = Math.round(diffInMinutes / 10080);
+			return rtf.format(diffInWeeks, 'week');
+		}
+
+		// If more than 24 hours, convert to days
+		if (Math.abs(diffInMinutes) >= 1440) {
+			const diffInDays = Math.round(diffInMinutes / 1440);
+			return rtf.format(diffInDays, 'day');
+		}
+
+		// If more than 31 days, convert to months
+		if (Math.abs(diffInMinutes) >= 44640) {
+			const diffInMonths = Math.round(diffInMinutes / 44640);
+			return rtf.format(diffInMonths, 'month');
+		}
+
+		// If more than 12 months, convert to years
+		if (Math.abs(diffInMinutes) >= 525600) {
+			const diffInYears = Math.round(diffInMinutes / 525600);
+			return rtf.format(diffInYears, 'year');
+		}
 	});
 
 	let habitsLastRefreshedRelative = $derived.by(() => {
