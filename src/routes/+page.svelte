@@ -36,7 +36,10 @@
 	let authUrl = $derived.by(() => {
 		// The default client ID only works with production url.
 		// Set the PUBLIC_YNAB_CLIENT_ID to a client that works with your dev URL.
-		const clientId = PUBLIC_YNAB_CLIENT_ID ?? 'aQfzesQUozhelo-S2RAddaG83YTcUm0CxbzJhVVZdEo';
+		const clientId =
+			PUBLIC_YNAB_CLIENT_ID.trim().length > 0
+				? PUBLIC_YNAB_CLIENT_ID
+				: 'aQfzesQUozhelo-S2RAddaG83YTcUm0CxbzJhVVZdEo';
 
 		const redirectUri = `${currentUrl}/callback`;
 
