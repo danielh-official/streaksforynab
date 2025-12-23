@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { db, type HabitQuery } from '$lib/db';
+	import { db, type Habit, type HabitQuery } from '$lib/db';
 	import { page } from '$app/state';
 	import { liveQuery } from 'dexie';
 	import HabitComponent from '$lib/components/habit.svelte';
@@ -435,6 +435,67 @@
 						</div>
 					</form>
 				</dialog>
+
+				<button
+					class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 cursor-pointer"
+					onclick={() => {
+						let exportData = $habits.map((habit: Habit) => {
+							return {
+								...habit,
+								transactions: undefined,
+								day_records: undefined
+							};
+						});
+
+						const dataStr =
+							'data:text/json;charset=utf-8,' +
+							encodeURIComponent(JSON.stringify(exportData, null, 2));
+						const downloadAnchorNode = document.createElement('a');
+						downloadAnchorNode.setAttribute('href', dataStr);
+						downloadAnchorNode.setAttribute('download', 'habits_export.json');
+						document.body.appendChild(downloadAnchorNode); // required for firefox
+						downloadAnchorNode.click();
+						downloadAnchorNode.remove();
+					}}
+				>
+					Export Habits
+				</button>
+
+				<button
+					class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 cursor-pointer"
+					onclick={async () => {
+						const input = document.createElement('input');
+						input.type = 'file';
+						input.accept = 'application/json';
+						input.onchange = async (e: Event) => {
+							const target = e.target as HTMLInputElement;
+							if (target.files && target.files.length > 0) {
+								const file = target.files[0];
+								const text = await file.text();
+								try {
+									const importedHabits: Habit[] = JSON.parse(text);
+									for (const habit of importedHabits) {
+										await db.habits.put({
+											...habit,
+											start_date: habit.start_date ? new Date(habit.start_date) : new Date(),
+											created_at: habit.created_at ? new Date(habit.created_at) : new Date(),
+											updated_at: habit.updated_at ? new Date(habit.updated_at) : new Date(),
+											transactions: [],
+											day_records: []
+										});
+									}
+									alert('Habits imported successfully!');
+								} catch (error) {
+									console.error('Error importing habits:', error);
+									alert('Failed to import habits. Please check the file format.');
+								}
+							}
+						};
+						input.click();
+					}}
+				>
+					Import Habits
+				</button>
 			</div>
 
 			<div class="grid grid-cols-2 gap-y-2 border border-gray-300 p-4">

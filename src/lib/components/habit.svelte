@@ -136,7 +136,7 @@
 		const today = new Date();
 		let streak = 0;
 
-		for (let i = habit.day_records.length - 1; i >= 0; i--) {
+		for (let i = habit.day_records?.length - 1; i >= 0; i--) {
 			const record = habit.day_records[i];
 			const recordDate = new Date(record.date);
 			recordDate.setHours(0, 0, 0, 0);
@@ -187,7 +187,7 @@
 	let anchorDate = $derived.by(() => new Date(selectedYear, selectedMonth, 1));
 
 	function getStyleForDate(date: Date): string {
-		const record = habit.day_records.find(
+		const record = (habit as Habit).day_records?.find(
 			(record: HabitDayRecord) => new Date(record.date).toDateString() === date.toDateString()
 		);
 		if (record) {
@@ -197,7 +197,7 @@
 		if (dateIsFuture) {
 			return 'bg-gray-300 text-gray-500';
 		}
-		const dateIsBeforeStart = date < habit.start_date;
+		const dateIsBeforeStart = date < (habit as Habit).start_date;
 		if (dateIsBeforeStart) {
 			return 'bg-gray-300 text-gray-500';
 		}
@@ -206,7 +206,7 @@
 
 	const todayAmount = $derived.by(() => {
 		const todayDate = new Date();
-		const todayRecord = habit.day_records.find(
+		const todayRecord = (habit as Habit).day_records?.find(
 			(record: HabitDayRecord) => new Date(record.date).toDateString() === todayDate.toDateString()
 		);
 		if (todayRecord) {
@@ -282,8 +282,8 @@
 					<h3 class="text-lg font-semibold mb-2">
 						<button
 							class="bg-gray-300 dark:bg-gray-700 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-							disabled={selectedYear === habit.start_date.getFullYear() &&
-								selectedMonth === habit.start_date.getMonth()}
+							disabled={selectedYear === (habit as Habit).start_date?.getFullYear() &&
+								selectedMonth === (habit as Habit).start_date?.getMonth()}
 							onclick={() => {
 								if (selectedMonth === 0) {
 									selectedMonth = 11;
@@ -331,7 +331,7 @@
 				<p>Goal: {habit.goal_type} {habit.goal}</p>
 				<p>Start Date: {new Date(habit.start_date).toLocaleDateString()}</p>
 				<p>Current Streak: {streak} days</p>
-				<p>Transactions: {habit.transactions.length}</p>
+				<p>Transactions: {habit.transactions?.length}</p>
 			</div>
 		</dialog>
 
