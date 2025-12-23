@@ -8,7 +8,7 @@
 	import { setTransactionsAndDayStatusesForHabit } from '$lib';
 	import QueryBuilder from '$lib/components/habit/QueryBuilder.svelte';
 	import type { TransactionDetail, TransactionsResponse } from 'ynab';
-	import { PUBLIC_BASE_PATH } from '$env/static/public';
+	import { resolve } from '$app/paths';
 
 	let isOnline = $state(navigator.onLine);
 
@@ -209,7 +209,8 @@
 				updated_at: new Date(),
 				skipped_dates: [],
 				transactions: [],
-				day_records: []
+				day_records: [],
+				order: ($habits?.length || 0) + 1
 			};
 
 			const habitId = await db.habits.add(newHabit);
@@ -266,9 +267,72 @@
 				.where('budget_id')
 				.equals(page.params.id ?? '')
 				.toArray()
+				.then((habits) =>
+					habits.sort((a, b) => {
+						return (a.order || 0) - (b.order || 0);
+					})
+				)
 	);
 
 	const transactions = liveQuery(() => db.transactions.toArray());
+
+	let draggingHabitId = $state<number | null>(null);
+
+	function handleDragStart(event: DragEvent, habitId: number) {
+		if (!browser) return;
+
+		draggingHabitId = habitId;
+		if (event.dataTransfer) {
+			// Use text/plain so drops work across browsers
+			event.dataTransfer.setData('text/plain', String(habitId));
+			// We don't need a visible drag image; let the browser use default
+		}
+	}
+
+	function handleDragOver(event: DragEvent) {
+		// Allow dropping by preventing default
+		event.preventDefault();
+	}
+
+	async function handleDrop(event: DragEvent, targetHabitId: number) {
+		if (!browser) return;
+		event.preventDefault();
+
+		const sourceFromState = draggingHabitId;
+		const sourceFromEvent = event.dataTransfer?.getData('text/plain');
+		const sourceHabitId = sourceFromState ?? (sourceFromEvent ? Number(sourceFromEvent) : null);
+
+		if (!sourceHabitId || sourceHabitId === targetHabitId) {
+			return;
+		}
+
+		const currentHabits = $habits ? [...$habits] : [];
+		const fromIndex = currentHabits.findIndex((h) => h.id === sourceHabitId);
+		const toIndex = currentHabits.findIndex((h) => h.id === targetHabitId);
+
+		if (fromIndex === -1 || toIndex === -1) {
+			return;
+		}
+
+		const [moved] = currentHabits.splice(fromIndex, 1);
+		currentHabits.splice(toIndex, 0, moved);
+
+		try {
+			await db.transaction('rw', db.habits, async () => {
+				for (let index = 0; index < currentHabits.length; index++) {
+					const habit = currentHabits[index];
+					if (!habit.id) continue;
+					await db.habits.update(habit.id, { order: index + 1 });
+				}
+			});
+		} catch (error) {
+			console.error('Error reordering habits:', error);
+		}
+	}
+
+	function handleDragEnd() {
+		draggingHabitId = null;
+	}
 
 	let viewHabitDialog = $state(); // HTMLDialogElement
 
@@ -332,7 +396,7 @@
 
 			<div class="flex md:flex-row flex-col gap-y-4 gap-x-4 justify-center p-5">
 				<a
-					href={`${PUBLIC_BASE_PATH ? PUBLIC_BASE_PATH : '/'}`}
+					href={resolve('/')}
 					class="text-blue-500 px-4 py-2 rounded hover:text-blue-600 hover:underline cursor-pointer"
 				>
 					Back to Budgets
@@ -575,8 +639,19 @@
 					'md:grid-cols-3': $habits?.length % 2 !== 0 && $habits?.length > 1
 				}}
 			>
-				{#each $habits as habit}
-					<HabitComponent {habit} />
+				{#each $habits as habit (habit.id)}
+					<div
+						class="cursor-move"
+						role="button"
+						tabindex={0}
+						draggable={true}
+						ondragstart={(event) => handleDragStart(event, habit.id!)}
+						ondragover={handleDragOver}
+						ondrop={(event) => handleDrop(event, habit.id!)}
+						ondragend={handleDragEnd}
+					>
+						<HabitComponent {habit} />
+					</div>
 				{/each}
 			</div>
 		</div>

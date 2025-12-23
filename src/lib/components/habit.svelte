@@ -224,10 +224,25 @@
 	class="border border-gray-300 rounded p-4 shadow hover:shadow-lg transition"
 	id={'habit-' + habit.id}
 >
-	<h2 class="text-lg font-bold mb-2">{habit.name}</h2>
-	<p>Goal: {habit.goal_type} {habit.goal}</p>
-	<p>Start Date: {new Date(habit.start_date).toLocaleDateString()}</p>
-	<p>Current Streak: {streak} days</p>
+	<div class="flex justify-end mb-2">
+		<button
+			type="button"
+			class="text-gray-400 hover:text-gray-600 cursor-move"
+			title="Drag to reorder"
+			aria-label="Drag habit to reorder"
+		>
+			☰
+		</button>
+	</div>
+
+	<!-- TODO: When dragging, make sure the box is not transparent. -->
+
+	<div>
+		<h2 class="text-lg font-bold">{habit.name}</h2>
+		<p>Goal: {habit.goal_type} {habit.goal}</p>
+		<p>Start Date: {new Date(habit.start_date).toLocaleDateString()}</p>
+		<p>Current Streak: {streak} days</p>
+	</div>
 
 	<!-- A goal ring that displays the progress towards the habit goal and the percentage within it -->
 
@@ -315,7 +330,7 @@
 				</div>
 
 				<div class="grid grid-cols-7 gap-4">
-					{#each currentRangeOfDates as date}
+					{#each currentRangeOfDates as date (date.getTime())}
 						<div
 							class={`md:w-10 md:h-10 w-7 h-7 flex items-center justify-center border rounded-3xl ${getStyleForDate(date)}`}
 						>

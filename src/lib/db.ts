@@ -33,6 +33,7 @@ interface Habit {
 	transactions: TransactionDetail[];
 	skipped_dates: Date[];
 	day_records: HabitDayRecord[];
+	order: number;
 }
 
 interface HabitDayRecord {
@@ -52,11 +53,11 @@ const db = new Dexie('StreaksForYnabDB') as Dexie & {
 	habits: EntityTable<Habit, 'id'>;
 };
 
-db.version(2).stores({
+db.version(3).stores({
 	budgets: 'id',
 	transactions: 'id',
 	meta_budgets: 'id',
-	habits: '++id, budget_id'
+	habits: '++id, budget_id, order'
 });
 
 export type { MetaBudget, Habit, HabitDayRecord, CustomBudgetDetail, HabitQuery };
