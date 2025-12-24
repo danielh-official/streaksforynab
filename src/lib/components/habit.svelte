@@ -308,7 +308,7 @@
 				cx="50"
 				cy="50"
 				r="45"
-				stroke="#10b981"
+				stroke={habit.goal_type === 'above' ? '#10b981' : '#ef4444'}
 				stroke-width="10"
 				fill="none"
 				stroke-dasharray="282.6"
