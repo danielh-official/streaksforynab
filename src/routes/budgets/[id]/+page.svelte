@@ -376,15 +376,10 @@
 
 	const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'always' });
 
-	let lastFetchedRelative = $derived.by(() => {
-		if (!browser) return '';
-
-		if (!$lastFetched) return 'Never';
-
+	function getRelativeTimeString(date: Date): string {
 		const now = new Date();
-		const lastFetchedDate = new Date($lastFetched);
 
-		const diffInMinutes = Math.round((lastFetchedDate.getTime() - now.getTime()) / 1000 / 60);
+		const diffInMinutes = Math.round((date.getTime() - now.getTime()) / 1000 / 60);
 
 		// If less than 60 minutes, show in minutes
 		if (Math.abs(diffInMinutes) < 60) {
@@ -420,6 +415,18 @@
 			const diffInYears = Math.round(diffInMinutes / 525600);
 			return rtf.format(diffInYears, 'year');
 		}
+
+		return '';
+	}
+
+	let lastFetchedRelative = $derived.by(() => {
+		if (!browser) return '';
+
+		if (!$lastFetched) return 'Never';
+
+		const lastFetchedDate = new Date($lastFetched);
+
+		return getRelativeTimeString(lastFetchedDate);
 	});
 
 	let habitsLastRefreshedRelative = $derived.by(() => {
@@ -427,12 +434,9 @@
 
 		if (!$habitsLastRefreshed) return 'Never';
 
-		const now = new Date();
 		const lastRefreshedDate = new Date($habitsLastRefreshed);
 
-		const diffInMinutes = Math.round((lastRefreshedDate.getTime() - now.getTime()) / 1000 / 60);
-
-		return rtf.format(diffInMinutes, 'minute');
+		return getRelativeTimeString(lastRefreshedDate);
 	});
 </script>
 
