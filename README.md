@@ -16,7 +16,31 @@ cd streaksforynab
 ```
 
 2. Install packages: `pnpm install`
-3. Run the server: `pnpm dev`
+3. Copy .env.example to .env
+
+```
+cp .env.example .env
+```
+
+You should see this .env:
+
+```
+PUBLIC_ADAPTER='static'
+PUBLIC_BASE_PATH='/streaksforynab'
+PUBLIC_YNAB_CLIENT_ID='your-ynab-client-id-here'
+```
+
+Make sure to edit the values in your .env file. The defaults are set for my GitHub pages site, where PUBLIC_YNAB_CLIENT_ID should be edited. The official Oauth Client App won't accept local dev urls as callbacks, so you'll have to make your own at [YNAB Developer Settings](https://app.ynab.com/settings/developer).
+
+Click "New Application" and enter details for your fork.
+
+In the "Redirect URI(s) text box, you should input your local server url + '/callback' (e.g., http://localhost:5173/callback).
+
+Click Save Application, and then copy the Client ID and paste it as the value for `PUBLIC_YNAB_CLIENT_ID`.
+
+4. Run the server: `pnpm dev`
+
+Some changes may not show for dev. To catch these, run `pnpm build` and then run `pnpm preview` to preview how the app would work on a Production-esque environment. You must run `pnpm build` each time you make changes (unlike with `pnpm dev`, which auto-refreshes).
 
 ## What is this?
 
