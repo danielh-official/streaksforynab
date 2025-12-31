@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 function getAdapter() {
-	const selectedAdapter = process.env.ADAPTER || 'static';
+	const selectedAdapter = process.env.PUBLIC_ADAPTER || 'static';
 
 	console.log('The current selected adapter is:', selectedAdapter);
 
@@ -23,7 +23,7 @@ function getAdapter() {
 		pages: 'build',
 		assets: 'build',
 		fallback: 'fallback.html',
-		precompress: false,
+		precompress: true,
 		strict: true
 	});
 }
@@ -47,11 +47,11 @@ const config = {
 		},
 		csp: {
 			directives: {
-				'img-src': ["'self'", 'data:', 'https://images.unsplash.com', 'https://cdn.sanity.io']
+				'img-src': ["'self'", 'data:']
 			}
 		},
 		csrf: {
-			trustedOrigins: [process.env.BASE_PATH || '']
+			trustedOrigins: [process.env.PUBLIC_BASE_PATH || '']
 		}
 	}
 };
