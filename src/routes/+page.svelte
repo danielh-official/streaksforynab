@@ -71,9 +71,11 @@
 			const lastFetchTime = new Date(lastFetch).getTime();
 			const now = Date.now();
 			const timeSinceLastFetch = now - lastFetchTime;
-			
+
 			if (timeSinceLastFetch < FETCH_DEBOUNCE_MS) {
-				alert(`Please wait ${Math.ceil((FETCH_DEBOUNCE_MS - timeSinceLastFetch) / 1000)}s before fetching again.`);
+				alert(
+					`Please wait ${Math.ceil((FETCH_DEBOUNCE_MS - timeSinceLastFetch) / 1000)}s before fetching again.`
+				);
 				return;
 			}
 		}

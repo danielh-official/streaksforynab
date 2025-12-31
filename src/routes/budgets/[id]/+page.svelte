@@ -53,7 +53,9 @@
 		if (lastFetch) {
 			const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 			if (new Date(lastFetch) > tenMinutesAgo) {
-				alert('Transactions were fetched less than 10 minutes ago. Please wait before fetching again.');
+				alert(
+					'Transactions were fetched less than 10 minutes ago. Please wait before fetching again.'
+				);
 				return;
 			}
 		}
