@@ -22,7 +22,7 @@ function getAdapter() {
 	return staticAdapter({
 		pages: 'build',
 		assets: 'build',
-		fallback: 'fallback.html',
+		fallback: 'index.html',
 		precompress: true,
 		strict: true
 	});
