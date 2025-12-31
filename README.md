@@ -50,6 +50,7 @@ Your data is stored 100% locally on your browser for the given domain (.e.g, [ht
 YNAB transactions are property of YNAB and can always be retrieved again via the API, but habits are stored locally on your browser for the specific domain you're using.
 
 You may export your habits if you intend to:
+
 - Use a different browser/computer
 - Use this codebase on a different domain
 
