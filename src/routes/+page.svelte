@@ -8,19 +8,12 @@
 	import { page } from '$app/state';
 
 	let isOnline = $state(navigator.onLine);
-	let loading = $state(true);
 	let isFetching = $state(false);
 
 	// Debounce: prevent multiple fetches within 5 seconds
 	const FETCH_DEBOUNCE_MS = 5000;
 
 	onMount(async () => {
-		if (browser) {
-			await new Promise((resolve) => setTimeout(resolve, 500));
-		}
-
-		loading = false;
-
 		const updateStatus = () => {
 			isOnline = navigator.onLine;
 		};
@@ -148,11 +141,7 @@
 </svelte:head>
 
 <div class="flex justify-center items-center">
-	{#if loading}
-		<div
-			class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"
-		></div>
-	{:else if authToken}
+	{#if authToken}
 		<div class="text-center flex flex-col gap-y-8">
 			<h1 class="text-2xl font-bold mb-4">You are logged in!</h1>
 
