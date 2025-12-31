@@ -17,7 +17,7 @@ function getAdapter() {
 	return staticAdapter({
 		pages: 'build',
 		assets: 'build',
-		fallback: '404.html',
+		fallback: 'fallback.html',
 		precompress: false,
 		strict: true
 	});
