@@ -43,6 +43,23 @@
 	async function fetchTransactionsForBudget() {
 		if (!browser) return;
 
+		// Before fetching, let's ensure the user hasn't called this function within the last 10 minutes.
+
+		const lastFetch = await db.meta_budgets
+			.get(page.params.id ?? '')
+			.then((meta) => meta?.transactions_last_fetched || null)
+			.catch(() => null);
+
+		if (lastFetch) {
+			const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+			if (new Date(lastFetch) > tenMinutesAgo) {
+				alert('Transactions were fetched less than 10 minutes ago. Please wait before fetching again.');
+				return;
+			}
+		}
+
+		// ---
+
 		const token = sessionStorage.getItem('ynab_access_token');
 
 		if (!token) return;
