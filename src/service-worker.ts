@@ -52,6 +52,22 @@ self.addEventListener('fetch', (event) => {
 		const url = new URL(event.request.url);
 		const cache = await caches.open(CACHE);
 
+		// Don't cache API calls - always try network first
+		const isApiCall = url.pathname.startsWith('/api') || url.hostname.includes('api.ynab.com');
+
+		if (isApiCall) {
+			try {
+				const response = await fetch(event.request);
+				if (!(response instanceof Response)) {
+					throw new Error('invalid response from fetch');
+				}
+				return response;
+			} catch (err) {
+				// API calls should not fall back to stale cache
+				throw err;
+			}
+		}
+
 		// `build`/`files` can always be served from the cache
 		if (ASSETS.includes(url.pathname)) {
 			const response = await cache.match(url.pathname);
