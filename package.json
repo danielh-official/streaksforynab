@@ -51,6 +51,7 @@
 		"vitest-browser-svelte": "^2.0.1"
 	},
 	"dependencies": {
+		"@sveltejs/adapter-netlify": "^5.2.4",
 		"dexie": "^4.2.1",
 		"ynab": "^2.10.0"
 	}

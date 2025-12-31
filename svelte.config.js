@@ -1,5 +1,6 @@
 import staticAdapter from '@sveltejs/adapter-static';
 import autoAdapter from '@sveltejs/adapter-auto';
+import netlifyAdapter from '@sveltejs/adapter-netlify';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import dotenv from 'dotenv';
 
@@ -12,6 +13,10 @@ function getAdapter() {
 
 	if (selectedAdapter === 'auto') {
 		return autoAdapter();
+	}
+
+	if (selectedAdapter === 'netlify') {
+		return netlifyAdapter();
 	}
 
 	return staticAdapter({
