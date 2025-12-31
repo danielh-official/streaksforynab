@@ -33,8 +33,8 @@ jobs:
 
       - name: build
         env:
-          BASE_PATH: '/${{ github.event.repository.name }}'
-          PUBLIC_BASE_PATH: '/${{ github.event.repository.name }}'
+          BASE_PATH: '/${{ github.event.repository.name }}/'
+          PUBLIC_BASE_PATH: '/${{ github.event.repository.name }}/'
           PUBLIC_YNAB_CLIENT_ID: ''
         run: |
           pnpm run build
