@@ -9,8 +9,23 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+function normalizeBasePath(path: string) {
+	if (!path) return '/';
+
+	// Ensure a leading slash is present
+	let normalized = path.startsWith('/') ? path : `/${path}`;
+
+	// Remove trailing slash (except for root) so we can control joining later
+	if (normalized !== '/' && normalized.endsWith('/')) {
+		normalized = normalized.slice(0, -1);
+	}
+
+	return normalized;
+}
+
 // Get the base path from environment or use default
-const PUBLIC_BASE_PATH = process.env.PUBLIC_BASE_PATH || '/';
+const PUBLIC_BASE_PATH = normalizeBasePath(process.env.PUBLIC_BASE_PATH || '/');
+const ASSETS_PREFIX = PUBLIC_BASE_PATH === '/' ? '/' : `${PUBLIC_BASE_PATH}/`;
 
 // Create manifest (replicated from src/manifest.ts)
 function createManifest() {
@@ -25,12 +40,12 @@ function createManifest() {
 		description: 'A web app to track your spending habits with YNAB.',
 		icons: [
 			{
-				src: `${PUBLIC_BASE_PATH}icons/dollar.png`,
+				src: `${ASSETS_PREFIX}icons/dollar.png`,
 				sizes: '192x192',
 				type: 'image/png'
 			},
 			{
-				src: `${PUBLIC_BASE_PATH}icons/dollar.png`,
+				src: `${ASSETS_PREFIX}icons/dollar.png`,
 				sizes: '512x512',
 				type: 'image/png'
 			}
