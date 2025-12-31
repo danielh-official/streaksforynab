@@ -53,9 +53,9 @@ const db = new Dexie('StreaksForYnabDB') as Dexie & {
 	habits: EntityTable<Habit, 'id'>;
 };
 
-db.version(3).stores({
+db.version(6).stores({
 	budgets: 'id',
-	transactions: 'id',
+	transactions: 'id, date',
 	meta_budgets: 'id',
 	habits: '++id, budget_id, order'
 });

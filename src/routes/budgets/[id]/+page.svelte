@@ -93,7 +93,7 @@
 					.json()
 					.then(async (responseData: TransactionsResponse) => {
 						responseData.data.transactions.forEach(async (transaction: TransactionDetail) => {
-							await db.transactions.put(transaction, 'id');
+							await db.transactions.put(transaction);
 						});
 
 						alert('Transactions fetched and stored locally!');
@@ -457,6 +457,18 @@
 
 		return getRelativeTimeString(lastRefreshedDate);
 	});
+
+	let latestDateOfTransactions = $derived.by(() => {
+		if (!browser || !$transactions || $transactions.length === 0) {
+			return null;
+		}
+
+		const dates = $transactions
+			.map((t) => new Date(t.date))
+			.sort((a, b) => b.getTime() - a.getTime());
+
+		return dates[0];
+	});
 </script>
 
 <svelte:head>
@@ -684,6 +696,7 @@
 				>
 			</div>
 
+			<!-- MARK: Information Panel -->
 			<div class="grid grid-cols-2 gap-y-2 border border-gray-300 p-4">
 				<div>
 					<div>
@@ -691,6 +704,13 @@
 							{lastFetchedRelative}
 						{:else}
 							Never
+						{/if}
+					</div>
+					<div>
+						Latest Date of Transactions: {#if latestDateOfTransactions}
+							{latestDateOfTransactions.toDateString()}
+						{:else}
+							N/A
 						{/if}
 					</div>
 					<div>
