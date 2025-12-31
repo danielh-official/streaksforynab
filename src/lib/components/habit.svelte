@@ -17,6 +17,7 @@
 		goal_type: 'above' | 'below';
 		goal: number;
 		start_date: string;
+		ignore_reconciliations: boolean;
 		query: HabitQuery | null;
 	}
 
@@ -53,6 +54,7 @@
 		goal_type: 'above',
 		goal: 0,
 		start_date: new Date().toISOString().split('T')[0],
+		ignore_reconciliations: false,
 		query: null
 	});
 
@@ -63,6 +65,7 @@
 				goal_type: habit.goal_type,
 				goal: habit.goal,
 				start_date: habit.start_date.toISOString().split('T')[0],
+				ignore_reconciliations: habit.ignore_reconciliations,
 				query: habit.query
 			};
 			showHabitEditModal = true;
@@ -104,6 +107,7 @@
 					goal_type: editHabitFormData.goal_type,
 					goal: Number(editHabitFormData.goal),
 					start_date: new Date(editHabitFormData.start_date + 'T00:00:00'),
+					ignore_reconciliations: editHabitFormData.ignore_reconciliations,
 					query: normalizeHabitQuery(editHabitFormData.query),
 					updated_at: new Date()
 				});
@@ -113,7 +117,8 @@
 				goal_type: editHabitFormData.goal_type,
 				goal: Number(editHabitFormData.goal),
 				start_date: new Date(editHabitFormData.start_date + 'T00:00:00'),
-				query: editHabitFormData.query
+				query: editHabitFormData.query,
+				ignore_reconciliations: editHabitFormData.ignore_reconciliations
 			});
 		} catch (error) {
 			console.error('Error editing habit:', error);
@@ -496,6 +501,17 @@
 						required
 						bind:value={editHabitFormData.start_date}
 						max={new Date().toISOString().split('T')[0]}
+					/>
+				</div>
+
+				<div class="flex flex-col">
+					<label for="ignore_reconciliations">Ignore Reconcilations</label>
+					<input
+						id="ignore_reconciliations"
+						name="ignore_reconciliations"
+						type="checkbox"
+						class="mt-2 self-center"
+						bind:checked={editHabitFormData.ignore_reconciliations}
 					/>
 				</div>
 

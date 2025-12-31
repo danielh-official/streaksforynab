@@ -27,6 +27,7 @@ interface Habit {
 	goal: number;
 	goal_type: 'above' | 'below';
 	query: HabitQuery | null;
+	ignore_reconciliations: boolean;
 	start_date: Date;
 	created_at: Date;
 	updated_at: Date;

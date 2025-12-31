@@ -55,7 +55,8 @@ describe('filter transaction', () => {
 						subtransactions: []
 					} as TransactionDetail,
 					expected: true,
-					date: new Date('2024-06-15')
+					date: new Date('2024-06-15'),
+					ignore_reconciliations: false
 				},
 				{
 					transaction: {
@@ -73,7 +74,8 @@ describe('filter transaction', () => {
 						subtransactions: []
 					} as TransactionDetail,
 					expected: false,
-					date: new Date('2024-06-15')
+					date: new Date('2024-06-15'),
+					ignore_reconciliations: false
 				}
 			]
 		},
@@ -116,7 +118,8 @@ describe('filter transaction', () => {
 						subtransactions: []
 					} as TransactionDetail,
 					expected: true,
-					date: new Date('2024-06-16')
+					date: new Date('2024-06-16'),
+					ignore_reconciliations: false
 				},
 				{
 					transaction: {
@@ -134,15 +137,16 @@ describe('filter transaction', () => {
 						subtransactions: []
 					} as TransactionDetail,
 					expected: false,
-					date: new Date('2024-06-16')
+					date: new Date('2024-06-16'),
+					ignore_reconciliations: false
 				}
 			]
 		}
 	])('with query %#: $representation', ({ query, cases }) => {
 		it.each(cases)(
 			'should return $expected for transaction %#: $transaction.id',
-			({ transaction, expected, date }) => {
-				const result = filterTransaction(transaction, query, date);
+			({ transaction, expected, date, ignore_reconciliations }) => {
+				const result = filterTransaction(transaction, query, date, ignore_reconciliations);
 				expect(result).toBe(expected);
 			}
 		);

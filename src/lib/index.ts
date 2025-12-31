@@ -9,9 +9,10 @@ export async function setTransactionsAndDayStatusesForHabit(params: {
 	goal: number;
 	start_date: Date;
 	query: HabitQuery | null;
+	ignore_reconciliations: boolean;
 }) {
 	try {
-		const { goal_type, goal, start_date, query } = params;
+		const { goal_type, goal, start_date, query, ignore_reconciliations } = params;
 
 		const habit = await db.habits.get(params.habit_id);
 
@@ -22,7 +23,7 @@ export async function setTransactionsAndDayStatusesForHabit(params: {
 		}
 
 		const filteredInTransactions = allTransactions.filter((transaction) =>
-			filterTransaction(transaction, query, start_date)
+			filterTransaction(transaction, query, start_date, ignore_reconciliations)
 		);
 
 		await db.habits.update(params.habit_id, {
@@ -79,10 +80,15 @@ export async function setTransactionsAndDayStatusesForHabit(params: {
 export function filterTransaction(
 	transaction: TransactionDetail,
 	query: HabitQuery | null,
-	start_date: Date
+	start_date: Date,
+	ignore_reconciliations: boolean
 ) {
 	const transactionDate = new Date(transaction.date + 'T00:00:00');
 	if (transactionDate < start_date) {
+		return false;
+	}
+
+	if (ignore_reconciliations && transaction.cleared === 'reconciled') {
 		return false;
 	}
 

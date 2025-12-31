@@ -98,7 +98,8 @@
 								goal_type: habit.goal_type,
 								goal: habit.goal,
 								start_date: habit.start_date,
-								query: habit.query
+								query: habit.query,
+								ignore_reconciliations: habit.ignore_reconciliations
 							});
 						});
 
@@ -152,7 +153,8 @@
 					goal_type: habit.goal_type,
 					goal: habit.goal,
 					start_date: habit.start_date,
-					query: habit.query
+					query: habit.query,
+					ignore_reconciliations: habit.ignore_reconciliations
 				});
 			});
 
@@ -194,6 +196,7 @@
 		goal: number;
 		start_date: string;
 		query: HabitQuery | null;
+		ignore_reconciliations: boolean;
 	}
 
 	let createHabitFormData: HabitFormData = $state({
@@ -201,7 +204,8 @@
 		goal_type: 'below',
 		goal: 10,
 		start_date: new Date().toISOString().split('T')[0],
-		query: null
+		query: null,
+		ignore_reconciliations: false
 	});
 
 	async function createNewHabit(event: Event) {
@@ -245,7 +249,8 @@
 				skipped_dates: [],
 				transactions: [],
 				day_records: [],
-				order: ($habits?.length || 0) + 1
+				order: ($habits?.length || 0) + 1,
+				ignore_reconciliations: createHabitFormData.ignore_reconciliations || false
 			};
 
 			const habitId = await db.habits.add(newHabit);
@@ -256,7 +261,8 @@
 					goal_type: newHabit.goal_type,
 					goal: newHabit.goal,
 					start_date: newHabit.start_date,
-					query: newHabit.query
+					query: newHabit.query,
+					ignore_reconciliations: newHabit.ignore_reconciliations
 				});
 			}
 		} catch (error) {
@@ -270,7 +276,8 @@
 			goal_type: 'above',
 			goal: 10,
 			start_date: new Date().toISOString().split('T')[0],
-			query: null
+			query: null,
+			ignore_reconciliations: false
 		};
 
 		showHabitCreationModal = false;
@@ -565,6 +572,17 @@
 							required
 							bind:value={createHabitFormData.start_date}
 							max={new Date().toISOString().split('T')[0]}
+						/>
+					</div>
+
+					<div class="flex flex-col">
+						<label for="ignore_reconciliations">Ignore Reconcilations</label>
+						<input
+							id="ignore_reconciliations"
+							name="ignore_reconciliations"
+							type="checkbox"
+							class="mt-2 self-center"
+							bind:checked={createHabitFormData.ignore_reconciliations}
 						/>
 					</div>
 
