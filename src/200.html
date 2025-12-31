@@ -1,13 +1,50 @@
 <!doctype html>
-<html lang="%paraglide.lang%">
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
-		<link rel="icon" href="%sveltekit.assets%/icons/dollar.png" />
-		%sveltekit.head%
+		<link rel="manifest" href="/streaksforynab/manifest.json" />
+		<link rel="icon" href="/streaksforynab/icons/dollar.png" />
+		<meta http-equiv="content-security-policy" content="img-src 'self' data:">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/entry/start.B_V_qfMT.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/CGboPNrN.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/q74FABws.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/Dq9AYW7b.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/DQHXJsG-.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/entry/app.CjJODkAW.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/DkvU9Yk0.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/CzetzLou.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/obeSEXGk.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/DsnmJJEf.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/B1KYPN4G.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/CvwFiqGB.js">
+		<link rel="modulepreload" href="/streaksforynab/_app/immutable/chunks/D7QC49Me.js">
 	</head>
 	<body data-sveltekit-preload-data="hover" class="dark:bg-gray-800 dark:text-white">
-		<div style="display: contents">%sveltekit.body%</div>
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_4n408k = {
+						base: "/streaksforynab",
+						assets: "/streaksforynab"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/streaksforynab/_app/immutable/entry/start.B_V_qfMT.js"),
+						import("/streaksforynab/_app/immutable/entry/app.CjJODkAW.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+
+					if ('serviceWorker' in navigator) {
+						addEventListener('load', function () {
+							navigator.serviceWorker.register('/streaksforynab/service-worker.js');
+						});
+					}
+				}
+			</script>
+		</div>
 	</body>
 </html>
