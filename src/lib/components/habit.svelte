@@ -321,7 +321,7 @@
 		</svg>
 	</div>
 
-	<div class="mt-4 flex md:flex-row flex-col gap-y-2 gap-x-2 justify-end text-sm">
+	<div class="mt-4 flex xl:flex-row flex-col gap-y-2 gap-x-2 justify-center text-sm">
 		<button
 			class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded cursor-pointer"
 			onclick={() => (showViewHabitModal = true)}>Details</button
