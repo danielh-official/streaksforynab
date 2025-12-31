@@ -8,8 +8,11 @@
 	import { page } from '$app/state';
 
 	let isOnline = $state(navigator.onLine);
-
 	let loading = $state(true);
+	let isFetching = $state(false);
+
+	// Debounce: prevent multiple fetches within 5 seconds
+	const FETCH_DEBOUNCE_MS = 5000;
 
 	onMount(async () => {
 		if (browser) {
@@ -56,54 +59,86 @@
 	async function fetchYnabBudgets() {
 		if (!browser) return;
 
+		// Check offline status
+		if (!isOnline) {
+			alert('You are offline. Cannot fetch budgets.');
+			return;
+		}
+
+		// Prevent duplicate requests with debounce
+		const lastFetch = localStorage.getItem('last_budget_fetch');
+		if (lastFetch) {
+			const lastFetchTime = new Date(lastFetch).getTime();
+			const now = Date.now();
+			const timeSinceLastFetch = now - lastFetchTime;
+			
+			if (timeSinceLastFetch < FETCH_DEBOUNCE_MS) {
+				alert(`Please wait ${Math.ceil((FETCH_DEBOUNCE_MS - timeSinceLastFetch) / 1000)}s before fetching again.`);
+				return;
+			}
+		}
+
 		const token = sessionStorage.getItem('ynab_access_token');
 		if (!token) {
 			alert('No YNAB access token found. Please log in again.');
 			return;
 		}
 
-		fetch('https://api.ynab.com/v1/budgets', {
-			headers: {
-				Authorization: `Bearer ${token}`
+		isFetching = true;
+
+		try {
+			const res = await fetch('https://api.ynab.com/v1/budgets', {
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
+
+			if (!res.ok) {
+				throw res;
 			}
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw res;
-				}
-			})
-			.then(async (responseData: BudgetSummaryResponse) => {
-				const defaultBudget = responseData.data.default_budget?.id;
 
-				for (const budget of responseData.data.budgets) {
-					await db.budgets.put({ ...budget, is_default: budget.id === defaultBudget }, 'id');
-				}
+			const responseData: BudgetSummaryResponse = await res.json();
+			const defaultBudget = responseData.data.default_budget?.id;
 
-				localStorage.setItem('last_budget_fetch', new Date().toISOString());
+			for (const budget of responseData.data.budgets) {
+				await db.budgets.put({ ...budget, is_default: budget.id === defaultBudget }, 'id');
+			}
 
-				alert('Budgets fetched and stored locally!');
-			})
-			.catch(async (res) => {
-				if (res.status === 401) {
+			localStorage.setItem('last_budget_fetch', new Date().toISOString());
+			alert('Budgets fetched and stored locally!');
+		} catch (error) {
+			// Handle different error scenarios
+			if (error instanceof Response) {
+				if (error.status === 401) {
 					alert('Your YNAB access token is invalid or has expired. Please log in again.');
 					sessionStorage.removeItem('ynab_access_token');
 					window.location.reload();
-				} else {
-					let errorData: ErrorResponse;
-					try {
-						errorData = await res.json();
-						console.error('Error fetching budgets from YNAB:', errorData);
-					} catch {
-						console.error('Error fetching budgets from YNAB. Unable to parse error response.');
-					}
-					alert('Failed to fetch budgets from YNAB. Please try again.');
+					return;
 				}
-			});
+
+				try {
+					const errorData: ErrorResponse = await error.json();
+					console.error('Error fetching budgets from YNAB:', errorData);
+				} catch {
+					console.error('Error fetching budgets from YNAB. Unable to parse error response.');
+				}
+			} else if (error instanceof TypeError) {
+				// Network error (offline, CORS, etc.)
+				console.error('Network error fetching budgets:', error);
+				alert('Network error. Please check your connection and try again.');
+			} else {
+				console.error('Unexpected error:', error);
+			}
+
+			alert('Failed to fetch budgets from YNAB. Please try again.');
+		} finally {
+			isFetching = false;
+		}
 	}
 
-	const budgets = liveQuery(() => db.budgets.toArray());
+	// YAGNI approach for now: just load first 10 budgets. If I seriously have users who want to work with all 1 bajillion of their budgets, then I'll implement more robust pagination and search features.
+
+	const budgets = liveQuery(() => db.budgets.orderBy('id').limit(10).toArray());
 </script>
 
 <svelte:head>
@@ -135,6 +170,7 @@
 				<thead>
 					<tr>
 						<th class="border px-4 py-2">Budget Name</th>
+						<th class="border px-4 py-2">Default</th>
 						<th class="border px-4 py-2">Actions</th>
 					</tr>
 				</thead>
@@ -142,6 +178,7 @@
 					{#each $budgets as budget}
 						<tr>
 							<td class="border px-4 py-2">{budget.name}</td>
+							<td class="border px-4 py-2">{budget.is_default ? 'Yes' : 'No'}</td>
 							<td class="border px-4 py-2">
 								<a href={`${currentUrl}/budgets/${budget.id}`} class="text-blue-500 hover:underline"
 									>View Details
